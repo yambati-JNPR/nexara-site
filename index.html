@@ -394,7 +394,8 @@
       <div class="download reveal">
         <div class="eyebrow">Get Nexara</div>
         <h2>Download for your platform</h2>
-        <p>Free and open source. Choose your operating system below — you'll be taken to the latest release on GitHub.</p>
+        <p>Free and open source. Choose your operating system below — you'll always get the latest release.</p>
+        <span class="pill" id="verPill" style="display:none;margin:0 auto 24px"><span class="dot"></span> Latest release: <b id="verBadge" style="color:var(--text);margin-left:5px"></b></span>
         <div class="dl-grid">
           <a class="dl-btn" id="dlMac" href="https://github.com/yambati-JNPR/nexara-site/releases/download/v3.4.0/Nexara-v3.4.0-macOS.dmg" rel="noopener">
             <svg viewBox="0 0 24 24"><path d="M16.365 1.43c0 1.14-.42 2.22-1.17 3.02-.79.86-2.09 1.53-3.15 1.44-.14-1.09.41-2.25 1.11-3.01.78-.86 2.16-1.5 3.21-1.45zM20.5 17.13c-.6 1.38-.89 1.99-1.66 3.21-1.08 1.7-2.6 3.81-4.48 3.83-1.67.02-2.1-1.09-4.37-1.08-2.27.01-2.74 1.1-4.41 1.08-1.88-.02-3.32-1.93-4.4-3.62C-1.06 17.2-1.4 11.35 1.4 8.28c1-1.11 2.58-1.81 4.07-1.81 1.53 0 2.49 1.09 4.36 1.09 1.82 0 2.94-1.09 4.36-1.09 1.5 0 3.08.82 4.2 2.24-3.69 2.02-3.09 7.29 1.11 8.42z"/></svg>
@@ -437,6 +438,29 @@
 
 <script>
   document.getElementById('yr').textContent = new Date().getFullYear();
+
+  // Auto-resolve the latest release from GitHub so the download links and version
+  // update themselves whenever a new release is published to nexara-site.
+  // If the request fails, the hard-coded links below act as a fallback.
+  (function(){
+    var REPO = 'yambati-JNPR/nexara-site';
+    var mac = document.getElementById('dlMac');
+    var win = document.getElementById('dlWin');
+    fetch('https://api.github.com/repos/' + REPO + '/releases/latest', {headers:{'Accept':'application/vnd.github+json'}})
+      .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function(rel){
+        var assets = rel.assets || [];
+        var dmg = assets.filter(function(a){ return /\.(dmg|pkg)$/i.test(a.name); })[0];
+        var exe = assets.filter(function(a){ return /\.(exe|msi)$/i.test(a.name); })[0];
+        if(dmg) mac.href = dmg.browser_download_url;
+        if(exe) win.href = exe.browser_download_url;
+        if(rel.tag_name){
+          var vb = document.getElementById('verBadge');
+          if(vb){ vb.textContent = rel.tag_name; vb.parentNode.style.display = 'inline-flex'; }
+        }
+      })
+      .catch(function(){ /* keep the hard-coded fallback links */ });
+  })();
 
   // OS detection — highlight the matching download button
   (function(){
