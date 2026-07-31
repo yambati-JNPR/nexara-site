@@ -397,7 +397,7 @@
         <p>Free and open source. Choose your operating system below — you'll always get the latest release.</p>
         <span class="pill" id="verPill" style="display:none;margin:0 auto 24px"><span class="dot"></span> Latest release: <b id="verBadge" style="color:var(--text);margin-left:5px"></b></span>
         <div class="dl-grid">
-          <a class="dl-btn" id="dlMac" href="https://github.com/yambati-JNPR/nexara-site/releases/download/v3.4.0/Nexara-v3.4.0-macOS.dmg" rel="noopener">
+          <a class="dl-btn primary" id="dlMac" href="https://github.com/yambati-JNPR/nexara-site/releases/download/v3.4.0/Nexara-v3.4.0-macOS.dmg" rel="noopener">
             <svg viewBox="0 0 24 24"><path d="M16.365 1.43c0 1.14-.42 2.22-1.17 3.02-.79.86-2.09 1.53-3.15 1.44-.14-1.09.41-2.25 1.11-3.01.78-.86 2.16-1.5 3.21-1.45zM20.5 17.13c-.6 1.38-.89 1.99-1.66 3.21-1.08 1.7-2.6 3.81-4.48 3.83-1.67.02-2.1-1.09-4.37-1.08-2.27.01-2.74 1.1-4.41 1.08-1.88-.02-3.32-1.93-4.4-3.62C-1.06 17.2-1.4 11.35 1.4 8.28c1-1.11 2.58-1.81 4.07-1.81 1.53 0 2.49 1.09 4.36 1.09 1.82 0 2.94-1.09 4.36-1.09 1.5 0 3.08.82 4.2 2.24-3.69 2.02-3.09 7.29 1.11 8.42z"/></svg>
             <span class="t"><small>Download for</small><span>macOS</span></span>
           </a>
@@ -460,30 +460,6 @@
         }
       })
       .catch(function(){ /* keep the hard-coded fallback links */ });
-  })();
-
-  // OS detection — highlight the matching download button
-  (function(){
-    var ua = navigator.userAgent || navigator.platform || '';
-    var isMac = /Mac|iPhone|iPad|iPod/i.test(ua);
-    var isWin = /Win/i.test(ua);
-    var mac = document.getElementById('dlMac');
-    var win = document.getElementById('dlWin');
-    var note = document.getElementById('osNote');
-    var hero = document.getElementById('heroDownload');
-    // reset default primary
-    win.classList.remove('primary');
-    if(isMac){
-      mac.classList.add('primary');
-      note.innerHTML = 'Detected <b>macOS</b> · Also available for Windows · Free &amp; open source';
-      hero.innerHTML = hero.innerHTML.replace('Download for Desktop','Download for macOS');
-    } else if(isWin){
-      win.classList.add('primary');
-      note.innerHTML = 'Detected <b>Windows</b> · Also available for macOS · Free &amp; open source';
-      hero.innerHTML = hero.innerHTML.replace('Download for Desktop','Download for Windows');
-    } else {
-      win.classList.add('primary');
-    }
   })();
 
   // Scroll reveal
