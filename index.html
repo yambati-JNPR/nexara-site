@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nexara — Automated SSR/128T &amp; SRX Diagnostic Analyser</title>
+<meta name="description" content="Nexara is a browser-based diagnostic tool for Juniper SSR/128T routers and SRX firewalls. Upload a TSI or RSI bundle and get automated indicators, RCA, and actionable findings — no external dependencies." />
+<meta name="theme-color" content="#0a0b12" />
+<meta property="og:title" content="Nexara — Automated SSR/128T &amp; SRX Diagnostic Analyser" />
+<meta property="og:description" content="Upload a support bundle. Get automated indicators, root-cause analysis, and actionable findings — all in your browser." />
+<meta property="og:type" content="website" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#08090f;
+    --bg-2:#0c0e18;
+    --panel:rgba(255,255,255,0.03);
+    --panel-brd:rgba(255,255,255,0.08);
+    --text:#e8eaf2;
+    --muted:#9aa0b4;
+    --faint:#6b7186;
+    --accent:#6d8bff;
+    --accent-2:#39d6c4;
+    --accent-3:#a06bff;
+    --glow:rgba(109,139,255,0.35);
+    --radius:16px;
+    --maxw:1140px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    color:var(--text);
+    background:var(--bg);
+    line-height:1.6;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+
+  /* Background mesh */
+  .bg{position:fixed;inset:0;z-index:-2;background:
+      radial-gradient(1000px 600px at 15% -10%, rgba(109,139,255,0.18), transparent 60%),
+      radial-gradient(900px 700px at 100% 0%, rgba(160,107,255,0.14), transparent 55%),
+      radial-gradient(800px 600px at 50% 120%, rgba(57,214,196,0.10), transparent 60%),
+      var(--bg);}
+  .grid-bg{position:fixed;inset:0;z-index:-1;opacity:0.35;
+    background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);
+    background-size:56px 56px;
+    mask-image:radial-gradient(circle at 50% 30%, black, transparent 78%);
+    -webkit-mask-image:radial-gradient(circle at 50% 30%, black, transparent 78%);}
+
+  /* Header */
+  header{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);
+    background:rgba(8,9,15,0.6);border-bottom:1px solid var(--panel-brd);}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:66px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:.2px}
+  .logo{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--accent),var(--accent-3));box-shadow:0 4px 18px var(--glow)}
+  .logo svg{width:17px;height:17px}
+  .brand b{font-size:18px}
+  .nav-links{display:flex;gap:28px;align-items:center}
+  .nav-links a{color:var(--muted);font-size:14.5px;font-weight:500;transition:color .2s}
+  .nav-links a:hover{color:var(--text)}
+  .btn{display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:14.5px;
+    padding:10px 18px;border-radius:11px;cursor:pointer;border:1px solid transparent;transition:all .2s;white-space:nowrap}
+  .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-3));color:#fff;box-shadow:0 6px 24px var(--glow)}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 30px var(--glow)}
+  .btn-ghost{background:var(--panel);border-color:var(--panel-brd);color:var(--text)}
+  .btn-ghost:hover{border-color:rgba(255,255,255,0.22);background:rgba(255,255,255,0.06)}
+  .nav .btn{padding:9px 16px}
+  @media(max-width:760px){.nav-links a:not(.nav-cta){display:none}}
+
+  /* Hero */
+  .hero{padding:96px 0 70px;text-align:center;position:relative}
+  .pill{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);
+    background:var(--panel);border:1px solid var(--panel-brd);padding:6px 14px;border-radius:999px;margin-bottom:26px}
+  .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--accent-2);box-shadow:0 0 10px var(--accent-2)}
+  h1{font-size:clamp(38px,6vw,66px);line-height:1.05;font-weight:800;letter-spacing:-1.5px;margin:0 0 20px}
+  h1 .grad{background:linear-gradient(120deg,var(--accent),var(--accent-2) 55%,var(--accent-3));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lead{font-size:clamp(16px,2.2vw,20px);color:var(--muted);max-width:680px;margin:0 auto 38px}
+  .hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .btn-lg{padding:15px 28px;font-size:16px;border-radius:13px}
+  .os-note{margin-top:16px;font-size:13px;color:var(--faint)}
+  .os-note b{color:var(--muted);font-weight:600}
+
+  /* App mock */
+  .mock{margin:66px auto 0;max-width:960px;border-radius:20px;overflow:hidden;
+    border:1px solid var(--panel-brd);box-shadow:0 40px 120px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.03) inset;
+    background:linear-gradient(180deg,var(--bg-2),#090a12)}
+  .mock-bar{display:flex;align-items:center;gap:8px;padding:13px 16px;border-bottom:1px solid var(--panel-brd);background:rgba(255,255,255,0.02)}
+  .mock-bar .d{width:11px;height:11px;border-radius:50%}
+  .mock-bar .d:nth-child(1){background:#ff5f57}.mock-bar .d:nth-child(2){background:#febc2e}.mock-bar .d:nth-child(3){background:#28c840}
+  .mock-url{margin-left:14px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--faint)}
+  .mock-body{display:grid;grid-template-columns:190px 1fr;min-height:340px}
+  .mock-side{border-right:1px solid var(--panel-brd);padding:18px 14px;background:rgba(255,255,255,0.015)}
+  .mock-side .grp{font-size:10px;letter-spacing:1.5px;color:var(--faint);text-transform:uppercase;margin:14px 6px 8px}
+  .mock-side .item{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--muted);padding:7px 8px;border-radius:8px}
+  .mock-side .item.active{background:rgba(109,139,255,0.14);color:var(--text)}
+  .mock-side .ic{width:14px;height:14px;border-radius:4px;background:linear-gradient(135deg,var(--accent),var(--accent-3));opacity:.85}
+  .mock-side .item.active .ic{opacity:1}
+  .mock-main{padding:22px}
+  .mock-h{font-size:15px;font-weight:700;margin-bottom:16px}
+  .mrow{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+  .mcard{background:var(--panel);border:1px solid var(--panel-brd);border-radius:12px;padding:14px}
+  .mcard .lbl{font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.8px}
+  .mcard .val{font-size:22px;font-weight:700;margin-top:5px}
+  .mcard .val.ok{color:var(--accent-2)}.mcard .val.warn{color:#febc2e}.mcard .val.crit{color:#ff6b6b}
+  .mbar{height:8px;border-radius:6px;background:rgba(255,255,255,0.06);overflow:hidden;margin-top:10px}
+  .mbar i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+  .mfind{display:flex;align-items:center;gap:11px;background:var(--panel);border:1px solid var(--panel-brd);border-left:3px solid #ff6b6b;border-radius:10px;padding:12px 14px;margin-top:10px;font-size:13px}
+  .mfind.w{border-left-color:#febc2e}
+  .mfind .sev{font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:rgba(255,107,107,0.15);color:#ff8f8f;text-transform:uppercase;letter-spacing:.6px}
+  .mfind.w .sev{background:rgba(254,188,46,0.15);color:#ffd479}
+  @media(max-width:640px){.mock-body{grid-template-columns:1fr}.mock-side{display:none}.mrow{grid-template-columns:1fr 1fr}}
+
+  /* Sections */
+  section{padding:72px 0}
+  .sec-head{text-align:center;max-width:660px;margin:0 auto 48px}
+  .eyebrow{font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+  h2{font-size:clamp(28px,4vw,42px);font-weight:800;letter-spacing:-1px;margin:0 0 14px}
+  .sec-head p{color:var(--muted);font-size:17px;margin:0}
+
+  .features{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:900px){.features{grid-template-columns:1fr 1fr}}
+  @media(max-width:600px){.features{grid-template-columns:1fr}}
+  .fcard{background:var(--panel);border:1px solid var(--panel-brd);border-radius:var(--radius);padding:26px;transition:all .25s;position:relative;overflow:hidden}
+  .fcard:hover{border-color:rgba(109,139,255,0.35);transform:translateY(-3px);background:rgba(109,139,255,0.04)}
+  .ficon{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;margin-bottom:16px;
+    background:linear-gradient(135deg,rgba(109,139,255,0.22),rgba(160,107,255,0.18));border:1px solid var(--panel-brd)}
+  .ficon svg{width:22px;height:22px;stroke:var(--accent);fill:none;stroke-width:1.7}
+  .fcard h3{font-size:17px;margin:0 0 8px;font-weight:700}
+  .fcard p{color:var(--muted);font-size:14.5px;margin:0}
+
+  /* Stats */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:8px}
+  @media(max-width:700px){.stats{grid-template-columns:1fr 1fr}}
+  .stat{text-align:center;padding:28px 16px;background:var(--panel);border:1px solid var(--panel-brd);border-radius:var(--radius)}
+  .stat .n{font-size:38px;font-weight:800;background:linear-gradient(120deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .stat .l{color:var(--muted);font-size:14px;margin-top:6px}
+
+  /* Platforms */
+  .plat{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:760px){.plat{grid-template-columns:1fr}}
+  .pcard{background:linear-gradient(180deg,rgba(255,255,255,0.035),rgba(255,255,255,0.01));border:1px solid var(--panel-brd);border-radius:var(--radius);padding:30px}
+  .pcard h3{font-size:20px;margin:0 0 6px;display:flex;align-items:center;gap:10px}
+  .ptag{font-size:11px;font-weight:600;color:var(--accent-2);background:rgba(57,214,196,0.12);border:1px solid rgba(57,214,196,0.25);padding:3px 9px;border-radius:7px}
+  .pcard p{color:var(--muted);font-size:14.5px;margin:0 0 18px}
+  .pcard ul{list-style:none;padding:0;margin:0;display:grid;gap:9px}
+  .pcard li{display:flex;gap:10px;font-size:14px;color:var(--muted)}
+  .pcard li svg{width:16px;height:16px;flex:none;margin-top:3px;stroke:var(--accent-2);fill:none;stroke-width:2}
+
+  /* Steps */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  @media(max-width:760px){.steps{grid-template-columns:1fr}}
+  .step{position:relative;padding:26px;background:var(--panel);border:1px solid var(--panel-brd);border-radius:var(--radius)}
+  .step .num{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:#fff;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent-3));margin-bottom:14px}
+  .step h3{margin:0 0 8px;font-size:17px}
+  .step p{color:var(--muted);font-size:14.5px;margin:0}
+  .step code{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--accent-2);background:rgba(57,214,196,0.08);padding:2px 6px;border-radius:5px}
+
+  /* Download CTA */
+  .download{text-align:center;background:linear-gradient(180deg,rgba(109,139,255,0.10),rgba(160,107,255,0.05));
+    border:1px solid var(--panel-brd);border-radius:26px;padding:60px 30px;margin:20px 0;position:relative;overflow:hidden}
+  .download::before{content:"";position:absolute;inset:0;background:radial-gradient(500px 300px at 50% 0%,var(--glow),transparent 70%);opacity:.6;z-index:0}
+  .download > *{position:relative;z-index:1}
+  .download h2{margin-bottom:10px}
+  .download p{color:var(--muted);max-width:520px;margin:0 auto 30px;font-size:17px}
+  .dl-grid{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+  .dl-btn{display:flex;align-items:center;gap:14px;padding:18px 26px;border-radius:15px;background:var(--panel);
+    border:1px solid var(--panel-brd);min-width:230px;transition:all .22s;cursor:pointer}
+  .dl-btn:hover{border-color:rgba(109,139,255,0.45);background:rgba(109,139,255,0.06);transform:translateY(-2px)}
+  .dl-btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-3));border-color:transparent;box-shadow:0 10px 34px var(--glow)}
+  .dl-btn svg{width:30px;height:30px;flex:none;fill:currentColor}
+  .dl-btn .t{text-align:left;line-height:1.25}
+  .dl-btn .t small{display:block;font-size:12px;opacity:.75;font-weight:500}
+  .dl-btn .t span{font-size:16px;font-weight:700}
+  .dl-alt{margin-top:24px;font-size:14px;color:var(--faint)}
+  .dl-alt a{color:var(--accent);font-weight:600;border-bottom:1px solid rgba(109,139,255,0.4)}
+  .dl-alt a:hover{color:var(--accent-2);border-color:var(--accent-2)}
+
+  /* Footer */
+  footer{border-top:1px solid var(--panel-brd);padding:44px 0 40px;margin-top:40px}
+  .foot{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+  .foot .brand b{font-size:16px}
+  .foot-links{display:flex;gap:24px;flex-wrap:wrap}
+  .foot-links a{color:var(--muted);font-size:14px}
+  .foot-links a:hover{color:var(--text)}
+  .foot-copy{color:var(--faint);font-size:13px;margin-top:22px;text-align:center}
+  .foot-copy a{color:var(--muted)}
+
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="grid-bg"></div>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#top">
+      <span class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="2.4"/><circle cx="4" cy="5" r="1.7"/><circle cx="20" cy="5" r="1.7"/><circle cx="4" cy="19" r="1.7"/><circle cx="20" cy="19" r="1.7"/>
+          <path d="M6 6l4.3 4.3M18 6l-4.3 4.3M6 18l4.3-4.3M18 18l-4.3-4.3"/>
+        </svg>
+      </span>
+      <b>Nexara</b>
+    </a>
+    <nav class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#platforms">Platforms</a>
+      <a href="#how">How it works</a>
+      <a href="https://github.com/yambati-JNPR/nexara-site" target="_blank" rel="noopener">GitHub</a>
+      <a class="btn btn-primary nav-cta" href="#download">Download</a>
+    </nav>
+  </div>
+</header>
+
+<a id="top"></a>
+<main>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap">
+      <span class="pill"><span class="dot"></span> Built for Juniper TAC &amp; network engineers</span>
+      <h1>Turn a support bundle into<br/><span class="grad">answers in seconds</span></h1>
+      <p class="lead">Nexara is a browser-based diagnostic analyser for Juniper <b style="color:var(--text)">SSR/128T</b> routers and <b style="color:var(--text)">SRX</b> firewalls. Drop in a TSI or RSI bundle — it runs a full suite of indicators, correlates system data, and surfaces the critical findings with corrective actions.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary btn-lg" href="#download" id="heroDownload">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
+          Download for Desktop
+        </a>
+        <a class="btn btn-ghost btn-lg" href="https://github.com/yambati-JNPR/nexara-site" target="_blank" rel="noopener">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.26c0 4.5 2.87 8.32 6.84 9.67.5.09.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.49-1.11-1.49-.91-.64.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.4 9.4 0 015 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.59.69.49A10.02 10.02 0 0022 12.26C22 6.58 17.52 2 12 2z"/></svg>
+          View on GitHub
+        </a>
+      </div>
+      <p class="os-note" id="osNote">Available for <b>macOS</b> and <b>Windows</b> · Free &amp; open source · Runs fully in your browser</p>
+
+      <!-- App preview -->
+      <div class="mock reveal">
+        <div class="mock-bar">
+          <span class="d"></span><span class="d"></span><span class="d"></span>
+          <span class="mock-url">localhost:8443 — Nexara · node0.zip</span>
+        </div>
+        <div class="mock-body">
+          <div class="mock-side">
+            <div class="grp">Analysis</div>
+            <div class="item active"><span class="ic"></span> Critical Insights</div>
+            <div class="item"><span class="ic"></span> Deep Insights</div>
+            <div class="item"><span class="ic"></span> Debug &amp; RCA</div>
+            <div class="item"><span class="ic"></span> Performance</div>
+            <div class="grp">Views</div>
+            <div class="item"><span class="ic"></span> Sessions</div>
+            <div class="item"><span class="ic"></span> Interfaces</div>
+            <div class="item"><span class="ic"></span> Routing / BGP</div>
+          </div>
+          <div class="mock-main">
+            <div class="mock-h">Critical Insights</div>
+            <div class="mrow">
+              <div class="mcard"><div class="lbl">Node</div><div class="val ok">Online</div></div>
+              <div class="mcard"><div class="lbl">CPU / Mem</div><div class="val warn">78%</div><div class="mbar"><i style="width:78%"></i></div></div>
+              <div class="mcard"><div class="lbl">Sessions</div><div class="val">142k</div></div>
+            </div>
+            <div class="mfind"><span class="sev">Critical</span> Source-NAT pool exhaustion detected — port allocation failures on pool <code style="font-family:'JetBrains Mono',monospace">wan-nat</code></div>
+            <div class="mfind w"><span class="sev">Warn</span> NTP offset drift on node1 — 340 ms from reference source</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div class="eyebrow">What it does</div>
+        <h2>Everything you need to diagnose a bundle</h2>
+        <p>Upload once. Nexara parses the whole support archive and organizes it into structured, drill-down views — no scripts, no external services.</p>
+      </div>
+      <div class="features">
+        <div class="fcard reveal">
+          <div class="ficon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3>Automated indicators</h3>
+          <p>40+ system, traffic, and network indicators run against every bundle — each with detection logic, thresholds, evidence, and corrective actions.</p>
+        </div>
+        <div class="fcard reveal">
+          <div class="ficon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg></div>
+          <h3>Critical &amp; Deep Insights</h3>
+          <p>A dashboard surfaces the issues that matter first, then Deep Insights lists every finding sorted by severity with expandable evidence.</p>
+        </div>
+        <div class="fcard reveal">
+          <div class="ficon"><svg viewBox="0 0 24 24"><path d="M9 3v4M15 3v4M4 7h16M6 7v13a1 1 0 001 1h10a1 1 0 001-1V7" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 12h6M9 16h4" stroke-linecap="round"/></svg></div>
+          <h3>Debug &amp; RCA</h3>
+          <p>Session debug with pattern-based log + PCAP analysis, deterministic crash stack-trace RCA, and optional LLM-powered deep root-cause analysis.</p>
+        </div>
+        <div class="fcard reveal">
+          <div class="ficon"><svg viewBox="0 0 24 24"><path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 14l3-4 3 3 5-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3>Performance metrics</h3>
+          <p>CPU, memory, packet processing, and top-process charts over time — with zoom and per-node filters for HA deployments.</p>
+        </div>
+        <div class="fcard reveal">
+          <div class="ficon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16" stroke-linecap="round"/></svg></div>
+          <h3>Parsed command views</h3>
+          <p>Sessions, Interfaces, Services, Alarms, Events, FIB, Routing, and BGP — core <code style="font-family:'JetBrains Mono',monospace;font-size:12px">show</code> commands rendered as clean, searchable tables.</p>
+        </div>
+        <div class="fcard reveal">
+          <div class="ficon"><svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6l8-4z" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3>Local &amp; private</h3>
+          <p>Runs entirely on your machine in the browser with no external dependencies. Bundles never leave your computer — AI features are optional.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section style="padding-top:10px">
+    <div class="wrap">
+      <div class="stats reveal">
+        <div class="stat"><div class="n">40+</div><div class="l">Automated indicators</div></div>
+        <div class="stat"><div class="n">2</div><div class="l">Platforms — SSR/128T &amp; SRX</div></div>
+        <div class="stat"><div class="n">HA</div><div class="l">Dual-node side-by-side</div></div>
+        <div class="stat"><div class="n">0</div><div class="l">External dependencies</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLATFORMS -->
+  <section id="platforms">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div class="eyebrow">Two pipelines, one tool</div>
+        <h2>SSR/128T and SRX, fully separated</h2>
+        <p>Nexara auto-detects the platform from your upload and switches to the right analysis pipeline. Indicators never cross platforms.</p>
+      </div>
+      <div class="plat">
+        <div class="pcard reveal">
+          <h3>SSR / 128T Router <span class="ptag">TSI bundle</span></h3>
+          <p>Upload a Tech Support Info <code style="font-family:'JetBrains Mono',monospace;font-size:12px">.zip</code> for full automated analysis across all indicators.</p>
+          <ul>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg> System: version, cores, memory, processes, coredumps, NTP, HA symmetry</li>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg> Traffic: adaptive encryption, TCP state, session installs, congestion</li>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg> Network: peer paths, source-NAT, routing parity, DHCP, IPSec</li>
+          </ul>
+        </div>
+        <div class="pcard reveal">
+          <h3>SRX Firewall <span class="ptag">RSI output</span></h3>
+          <p>Upload the RSI output, a <code style="font-family:'JetBrains Mono',monospace;font-size:12px">/var/log</code> archive, and/or config. Chassis clusters parsed from a single RSI.</p>
+          <ul>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg> Chassis cluster: RG priority, split brain, failover, control/fabric links</li>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg> Flow sessions, source-NAT, SPU/PFE performance, RE health</li>
+            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg> Alarms, interfaces, IPsec VPN, config audit, log scan</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <div class="eyebrow">How it works</div>
+        <h2>From bundle to findings in three steps</h2>
+      </div>
+      <div class="steps">
+        <div class="step reveal">
+          <div class="num">1</div>
+          <h3>Install &amp; launch</h3>
+          <p>Download Nexara, then start it. Open <code>localhost:8443</code> in your browser — everything runs locally.</p>
+        </div>
+        <div class="step reveal">
+          <div class="num">2</div>
+          <h3>Drop your bundle</h3>
+          <p>Drag a <code>.zip</code> TSI or RSI bundle onto the upload area. Upload both HA node bundles together for side-by-side analysis.</p>
+        </div>
+        <div class="step reveal">
+          <div class="num">3</div>
+          <h3>Read the findings</h3>
+          <p>Nexara runs every indicator and presents critical insights, evidence, charts, and corrective actions across structured views.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOWNLOAD -->
+  <section id="download">
+    <div class="wrap">
+      <div class="download reveal">
+        <div class="eyebrow">Get Nexara</div>
+        <h2>Download for your platform</h2>
+        <p>Free and open source. Choose your operating system below — you'll be taken to the latest release on GitHub.</p>
+        <div class="dl-grid">
+          <a class="dl-btn" id="dlMac" href="https://github.com/yambati-JNPR/nexara-site/releases/download/v3.4.0/Nexara-v3.4.0-macOS.dmg" rel="noopener">
+            <svg viewBox="0 0 24 24"><path d="M16.365 1.43c0 1.14-.42 2.22-1.17 3.02-.79.86-2.09 1.53-3.15 1.44-.14-1.09.41-2.25 1.11-3.01.78-.86 2.16-1.5 3.21-1.45zM20.5 17.13c-.6 1.38-.89 1.99-1.66 3.21-1.08 1.7-2.6 3.81-4.48 3.83-1.67.02-2.1-1.09-4.37-1.08-2.27.01-2.74 1.1-4.41 1.08-1.88-.02-3.32-1.93-4.4-3.62C-1.06 17.2-1.4 11.35 1.4 8.28c1-1.11 2.58-1.81 4.07-1.81 1.53 0 2.49 1.09 4.36 1.09 1.82 0 2.94-1.09 4.36-1.09 1.5 0 3.08.82 4.2 2.24-3.69 2.02-3.09 7.29 1.11 8.42z"/></svg>
+            <span class="t"><small>Download for</small><span>macOS</span></span>
+          </a>
+          <a class="dl-btn primary" id="dlWin" href="https://github.com/yambati-JNPR/nexara-site/releases/download/v3.4.0/Nexara-v3.4.0-Windows-Setup.exe" rel="noopener">
+            <svg viewBox="0 0 24 24"><path d="M3 5.5L10.5 4.4v7.1H3V5.5zM3 12.5h7.5v7.1L3 18.5v-6zM11.5 4.25L21 3v8.5h-9.5V4.25zM11.5 12.5H21V21l-9.5-1.25V12.5z"/></svg>
+            <span class="t"><small>Download for</small><span>Windows</span></span>
+          </a>
+        </div>
+        <p class="dl-alt">Prefer another route? Browse <a href="https://github.com/yambati-JNPR/nexara-site/releases" target="_blank" rel="noopener">all releases &amp; checksums on GitHub</a> or install from source via the <a href="https://github.com/yambati-JNPR/nexara-site" target="_blank" rel="noopener">repository README</a>.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <a class="brand" href="#top">
+        <span class="logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="2.4"/><circle cx="4" cy="5" r="1.7"/><circle cx="20" cy="5" r="1.7"/><circle cx="4" cy="19" r="1.7"/><circle cx="20" cy="19" r="1.7"/>
+            <path d="M6 6l4.3 4.3M18 6l-4.3 4.3M6 18l4.3-4.3M18 18l-4.3-4.3"/>
+          </svg>
+        </span>
+        <b>Nexara</b>
+      </a>
+      <nav class="foot-links">
+        <a href="#features">Features</a>
+        <a href="#platforms">Platforms</a>
+        <a href="#download">Download</a>
+        <a href="https://github.com/yambati-JNPR/nexara-site" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/yambati-JNPR/nexara-site/releases" target="_blank" rel="noopener">Releases</a>
+      </nav>
+    </div>
+    <p class="foot-copy">Automated SSR/128T &amp; SRX Diagnostic Analyser · Built by <a href="https://www.linkedin.com/in/bhaskar-reddy-gaddam-a4118a53/" target="_blank" rel="noopener">Bhaskar Gaddam</a> &amp; <a href="https://www.linkedin.com/in/yeshwanth-ambati/" target="_blank" rel="noopener">Yeshwanth Ambati</a> · &copy; <span id="yr"></span> Nexara</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('yr').textContent = new Date().getFullYear();
+
+  // OS detection — highlight the matching download button
+  (function(){
+    var ua = navigator.userAgent || navigator.platform || '';
+    var isMac = /Mac|iPhone|iPad|iPod/i.test(ua);
+    var isWin = /Win/i.test(ua);
+    var mac = document.getElementById('dlMac');
+    var win = document.getElementById('dlWin');
+    var note = document.getElementById('osNote');
+    var hero = document.getElementById('heroDownload');
+    // reset default primary
+    win.classList.remove('primary');
+    if(isMac){
+      mac.classList.add('primary');
+      note.innerHTML = 'Detected <b>macOS</b> · Also available for Windows · Free &amp; open source';
+      hero.innerHTML = hero.innerHTML.replace('Download for Desktop','Download for macOS');
+    } else if(isWin){
+      win.classList.add('primary');
+      note.innerHTML = 'Detected <b>Windows</b> · Also available for macOS · Free &amp; open source';
+      hero.innerHTML = hero.innerHTML.replace('Download for Desktop','Download for Windows');
+    } else {
+      win.classList.add('primary');
+    }
+  })();
+
+  // Scroll reveal
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, {threshold:0.12});
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+</script>
+</body>
+</html>
