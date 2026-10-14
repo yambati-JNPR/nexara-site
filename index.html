@@ -1,35 +1,79 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Nexara — Automated SSR/128T, SRX &amp; EdgeConnect Diagnostic Analyser</title>
-<meta name="description" content="Nexara is a browser-based diagnostic tool for Juniper SSR/128T routers, SRX firewalls and EdgeConnect SD-WAN appliances. Upload a TSI bundle, RSI output or EdgeConnect sysdump and get automated indicators, RCA, and actionable findings — no external dependencies." />
-<meta name="theme-color" content="#0a0b12" />
+<meta name="description" content="Nexara is a desktop diagnostic analyser for Juniper SSR/128T routers, SRX firewalls and HPE Aruba EdgeConnect SD-WAN appliances. Upload a TSI bundle, RSI output or EdgeConnect sysdump and get automated indicators, root-cause analysis and actionable findings — locally, with no account." />
+<meta name="theme-color" content="#f5f6fb" id="themeColor" />
 <meta property="og:title" content="Nexara — Automated SSR/128T, SRX &amp; EdgeConnect Diagnostic Analyser" />
-<meta property="og:description" content="Upload a support bundle. Get automated indicators, root-cause analysis, and actionable findings — all in your browser." />
+<meta property="og:description" content="Upload a support bundle. Get automated indicators, root-cause analysis and actionable findings — all on your own machine." />
 <meta property="og:type" content="website" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
+  /* Dark tokens; the page starts in light ([data-theme="light"] on <html>)
+     and only uses these once a visitor switches to dark. */
   :root{
+    color-scheme:dark;
+    --ink:255,255,255;
     --bg:#08090f;
     --bg-2:#0c0e18;
-    --panel:rgba(255,255,255,0.03);
-    --panel-brd:rgba(255,255,255,0.08);
+    --mock-bg:linear-gradient(180deg,#0c0e18,#090a12);
+    --header-bg:rgba(8,9,15,0.6);
+    --shadow:0 40px 120px rgba(0,0,0,0.6);
+    --panel:rgba(var(--ink),0.03);
+    --panel-brd:rgba(var(--ink),0.08);
     --text:#e8eaf2;
     --muted:#9aa0b4;
     --faint:#6b7186;
     --accent:#6d8bff;
     --accent-2:#39d6c4;
     --accent-3:#a06bff;
+    --on-accent:#08090f;
+    --crit:#ff6b6b;
+    --warn:#febc2e;
+    --crit-text:var(--crit-text);
+    --warn-text:var(--warn-text);
+    --mesh-1:rgba(109,139,255,0.18);
+    --mesh-2:rgba(160,107,255,0.14);
+    --mesh-3:rgba(57,214,196,0.10);
     --glow:rgba(109,139,255,0.35);
     --radius:16px;
     --maxw:1140px;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
   }
+  [data-theme="light"]{
+    color-scheme:light;
+    --ink:20,26,48;
+    --bg:#f5f6fb;
+    --bg-2:#ffffff;
+    --mock-bg:linear-gradient(180deg,#ffffff,#f7f8fc);
+    --header-bg:rgba(245,246,251,0.75);
+    --shadow:0 30px 80px rgba(30,40,80,0.16);
+    --panel:rgba(255,255,255,0.75);
+    --panel-brd:rgba(var(--ink),0.10);
+    --text:#141a30;
+    --muted:#4b546e;
+    --faint:#6f7790;
+    --accent:#4f6bed;
+    --accent-2:#0d9488;
+    --accent-3:#7c4ddb;
+    --on-accent:#ffffff;
+    --crit:#dc4848;
+    --warn:#d48a06;
+    --crit-text:#c23434;
+    --warn-text:#9a6400;
+    --mesh-1:rgba(79,107,237,0.14);
+    --mesh-2:rgba(124,77,219,0.10);
+    --mesh-3:rgba(13,148,136,0.08);
+    --glow:rgba(79,107,237,0.28);
+  }
+  body,header,.mock,.pcard,.fcard,.spot,.acc details,.stat,.step,.dl-btn{transition:background-color .3s,border-color .3s,color .3s}
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
   body{
     margin:0;
     font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
@@ -40,128 +84,319 @@
     -webkit-font-smoothing:antialiased;
   }
   a{color:inherit;text-decoration:none}
+  button{font:inherit;color:inherit}
+  code{font-family:var(--mono);font-size:.86em}
+  :focus-visible{outline:2px solid var(--accent-2);outline-offset:2px;border-radius:6px}
   .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  section,[id]{scroll-margin-top:78px}
 
   /* Background mesh */
   .bg{position:fixed;inset:0;z-index:-2;background:
-      radial-gradient(1000px 600px at 15% -10%, rgba(109,139,255,0.18), transparent 60%),
-      radial-gradient(900px 700px at 100% 0%, rgba(160,107,255,0.14), transparent 55%),
-      radial-gradient(800px 600px at 50% 120%, rgba(57,214,196,0.10), transparent 60%),
+      radial-gradient(1000px 600px at 15% -10%, var(--mesh-1), transparent 60%),
+      radial-gradient(900px 700px at 100% 0%, var(--mesh-2), transparent 55%),
+      radial-gradient(800px 600px at 50% 120%, var(--mesh-3), transparent 60%),
       var(--bg);}
   .grid-bg{position:fixed;inset:0;z-index:-1;opacity:0.35;
-    background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px);
+    background-image:linear-gradient(rgba(var(--ink),0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(var(--ink),0.03) 1px,transparent 1px);
     background-size:56px 56px;
     mask-image:radial-gradient(circle at 50% 30%, black, transparent 78%);
     -webkit-mask-image:radial-gradient(circle at 50% 30%, black, transparent 78%);}
 
   /* Header */
   header{position:sticky;top:0;z-index:50;backdrop-filter:blur(14px);
-    background:rgba(8,9,15,0.6);border-bottom:1px solid var(--panel-brd);}
+    background:var(--header-bg);border-bottom:1px solid var(--panel-brd);}
   .nav{display:flex;align-items:center;justify-content:space-between;height:66px}
   .brand{display:flex;align-items:center;gap:11px;font-weight:700;letter-spacing:.2px}
   .logo{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;
     background:linear-gradient(135deg,var(--accent),var(--accent-3));box-shadow:0 4px 18px var(--glow)}
   .logo svg{width:17px;height:17px}
   .brand b{font-size:18px}
-  .nav-links{display:flex;gap:28px;align-items:center}
-  .nav-links a{color:var(--muted);font-size:14.5px;font-weight:500;transition:color .2s}
-  .nav-links a:hover{color:var(--text)}
+  .nav-links{display:flex;gap:26px;align-items:center}
+  .nav-links a{color:var(--muted);font-size:14.5px;font-weight:500;transition:color .2s;position:relative}
+  .nav-links a:hover,.nav-links a.current{color:var(--text)}
+  .nav-links a.current:not(.nav-cta)::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
   .btn{display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:14.5px;
     padding:10px 18px;border-radius:11px;cursor:pointer;border:1px solid transparent;transition:all .2s;white-space:nowrap}
   .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent-3));color:#fff;box-shadow:0 6px 24px var(--glow)}
   .btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 30px var(--glow)}
   .btn-ghost{background:var(--panel);border-color:var(--panel-brd);color:var(--text)}
-  .btn-ghost:hover{border-color:rgba(255,255,255,0.22);background:rgba(255,255,255,0.06)}
+  .btn-ghost:hover{border-color:rgba(var(--ink),0.22);background:rgba(var(--ink),0.06)}
   .nav .btn{padding:9px 16px}
-  @media(max-width:760px){.nav-links a:not(.nav-cta){display:none}}
+  .theme-toggle{width:38px;height:38px;display:grid;place-items:center;border-radius:11px;cursor:pointer;
+    background:var(--panel);border:1px solid var(--panel-brd);color:var(--muted);transition:color .2s,border-color .2s}
+  .theme-toggle:hover{color:var(--text);border-color:rgba(var(--ink),0.22)}
+  .theme-toggle svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .theme-toggle .sun{display:none}
+  [data-theme="light"] .theme-toggle .sun{display:block}
+  [data-theme="light"] .theme-toggle .moon{display:none}
+  .nav-links .nav-cta{color:#fff}
+  @media(max-width:860px){.nav-links a:not(.nav-cta){display:none}.nav-links{gap:12px}}
 
   /* Hero */
-  .hero{padding:96px 0 70px;text-align:center;position:relative}
+  .hero{padding:90px 0 70px;text-align:center;position:relative}
   .pill{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);
-    background:var(--panel);border:1px solid var(--panel-brd);padding:6px 14px;border-radius:999px;margin-bottom:26px}
+    background:var(--panel);border:1px solid var(--panel-brd);padding:6px 14px;border-radius:999px;margin-bottom:26px;transition:border-color .2s}
+  a.pill:hover{border-color:rgba(var(--ink),0.22)}
   .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--accent-2);box-shadow:0 0 10px var(--accent-2)}
+  .pill.new{color:var(--text)}
+  .pill.new .tag{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--on-accent);background:var(--accent-2);padding:2px 8px;border-radius:999px}
   h1{font-size:clamp(38px,6vw,66px);line-height:1.05;font-weight:800;letter-spacing:-1.5px;margin:0 0 20px}
   h1 .grad{background:linear-gradient(120deg,var(--accent),var(--accent-2) 55%,var(--accent-3));-webkit-background-clip:text;background-clip:text;color:transparent}
-  .lead{font-size:clamp(16px,2.2vw,20px);color:var(--muted);max-width:680px;margin:0 auto 38px}
+  .lead{font-size:clamp(16px,2.2vw,20px);color:var(--muted);max-width:700px;margin:0 auto 38px}
+  .lead b{color:var(--text)}
   .hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
   .btn-lg{padding:15px 28px;font-size:16px;border-radius:13px}
   .os-note{margin-top:16px;font-size:13px;color:var(--faint)}
   .os-note b{color:var(--muted);font-weight:600}
 
-  /* App mock */
-  .mock{margin:66px auto 0;max-width:960px;border-radius:20px;overflow:hidden;
-    border:1px solid var(--panel-brd);box-shadow:0 40px 120px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.03) inset;
-    background:linear-gradient(180deg,var(--bg-2),#090a12)}
-  .mock-bar{display:flex;align-items:center;gap:8px;padding:13px 16px;border-bottom:1px solid var(--panel-brd);background:rgba(255,255,255,0.02)}
+  /* App mock (shared) */
+  .mock{margin:66px auto 0;max-width:960px;border-radius:20px;overflow:hidden;text-align:left;
+    border:1px solid var(--panel-brd);box-shadow:var(--shadow),0 0 0 1px rgba(var(--ink),0.03) inset;
+    background:var(--mock-bg)}
+  .mock-bar{display:flex;align-items:center;gap:8px;padding:13px 16px;border-bottom:1px solid var(--panel-brd);background:rgba(var(--ink),0.02)}
   .mock-bar .d{width:11px;height:11px;border-radius:50%}
   .mock-bar .d:nth-child(1){background:#ff5f57}.mock-bar .d:nth-child(2){background:#febc2e}.mock-bar .d:nth-child(3){background:#28c840}
-  .mock-url{margin-left:14px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--faint)}
-  .mock-body{display:grid;grid-template-columns:190px 1fr;min-height:340px}
-  .mock-side{border-right:1px solid var(--panel-brd);padding:18px 14px;background:rgba(255,255,255,0.015)}
-  .mock-side .grp{font-size:10px;letter-spacing:1.5px;color:var(--faint);text-transform:uppercase;margin:14px 6px 8px}
-  .mock-side .item{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--muted);padding:7px 8px;border-radius:8px}
-  .mock-side .item.active{background:rgba(109,139,255,0.14);color:var(--text)}
-  .mock-side .ic{width:14px;height:14px;border-radius:4px;background:linear-gradient(135deg,var(--accent),var(--accent-3));opacity:.85}
+  .mock-url{margin-left:14px;font-family:var(--mono);font-size:12.5px;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mock-body{display:grid;grid-template-columns:178px minmax(0,1fr)}
+  .mock-side{border-right:1px solid var(--panel-brd);padding:16px 10px;background:rgba(var(--ink),0.015)}
+  .mock-side .grp{font-size:10px;letter-spacing:1.5px;color:var(--faint);text-transform:uppercase;margin:6px 6px 8px}
+  .mock-side .item{display:flex;align-items:center;gap:9px;width:100%;font-size:12.5px;color:var(--muted);padding:7px 8px;border-radius:8px;
+    background:none;border:0;cursor:pointer;text-align:left;white-space:nowrap;transition:background .2s,color .2s}
+  .mock-side .item:hover{background:rgba(var(--ink),0.04);color:var(--text)}
+  .mock-side .item.active{background:color-mix(in srgb,var(--pa,var(--accent)) 16%,transparent);color:var(--text)}
+  .mock-side .ic{width:14px;height:14px;flex:none;border-radius:4px;background:linear-gradient(135deg,var(--pa,var(--accent)),var(--accent-3));opacity:.55}
   .mock-side .item.active .ic{opacity:1}
-  .mock-main{padding:22px}
-  .mock-h{font-size:15px;font-weight:700;margin-bottom:16px}
-  .mrow{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
-  .mcard{background:var(--panel);border:1px solid var(--panel-brd);border-radius:12px;padding:14px}
-  .mcard .lbl{font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:.8px}
-  .mcard .val{font-size:22px;font-weight:700;margin-top:5px}
-  .mcard .val.ok{color:var(--accent-2)}.mcard .val.warn{color:#febc2e}.mcard .val.crit{color:#ff6b6b}
-  .mbar{height:8px;border-radius:6px;background:rgba(255,255,255,0.06);overflow:hidden;margin-top:10px}
-  .mbar i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
-  .mfind{display:flex;align-items:center;gap:11px;background:var(--panel);border:1px solid var(--panel-brd);border-left:3px solid #ff6b6b;border-radius:10px;padding:12px 14px;margin-top:10px;font-size:13px}
-  .mfind.w{border-left-color:#febc2e}
-  .mfind .sev{font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:rgba(255,107,107,0.15);color:#ff8f8f;text-transform:uppercase;letter-spacing:.6px}
-  .mfind.w .sev{background:rgba(254,188,46,0.15);color:#ffd479}
-  @media(max-width:640px){.mock-body{grid-template-columns:1fr}.mock-side{display:none}.mrow{grid-template-columns:1fr 1fr}}
+  .mock-main{padding:18px;min-width:0;min-height:356px}
+  .mock-h{font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .mock-h .chip{font-size:10.5px;font-weight:600;color:var(--muted);border:1px solid var(--panel-brd);padding:2px 8px;border-radius:999px}
+  .mrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px}
+  .mrow.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .mcard{background:var(--panel);border:1px solid var(--panel-brd);border-radius:12px;padding:11px 13px;min-width:0}
+  .mcard .lbl{font-size:10.5px;color:var(--faint);text-transform:uppercase;letter-spacing:.8px}
+  .mcard .val{font-size:20px;font-weight:700;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mcard .val.sm{font-size:15px;margin-top:7px}
+  .mcard .sub{font-size:11px;color:var(--faint);margin-top:2px}
+  .val.ok{color:var(--accent-2)}.val.warn{color:var(--warn)}.val.crit{color:var(--crit)}
+  .mbar{height:7px;border-radius:6px;background:rgba(var(--ink),0.06);overflow:hidden;margin-top:9px}
+  .mbar i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,var(--pa,var(--accent)),var(--accent-2))}
+  .mbar i.warn{background:linear-gradient(90deg,#f3a712,var(--warn))}
+  .mfind{display:flex;align-items:center;gap:11px;background:var(--panel);border:1px solid var(--panel-brd);border-left:3px solid var(--crit);border-radius:10px;padding:10px 13px;margin-top:8px;font-size:12.5px}
+  .mfind.w{border-left-color:var(--warn)}.mfind.i{border-left-color:var(--accent)}
+  .sev{flex:none;font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:6px;background:rgba(255,107,107,0.15);color:var(--crit-text);text-transform:uppercase;letter-spacing:.6px}
+  .mfind.w .sev{background:rgba(254,188,46,0.15);color:var(--warn-text)}
+  .mfind.i .sev{background:rgba(109,139,255,0.15);color:var(--accent)}
+  .msev{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}
+  .msev div{border:1px solid var(--panel-brd);border-top:3px solid;border-radius:9px;padding:6px 10px;font-size:11px;color:var(--faint);background:var(--panel)}
+  .msev b{display:block;font-size:16px;line-height:1.2}
+  .msev .c{border-top-color:var(--crit)}.msev .c b{color:var(--crit-text)}
+  .msev .w{border-top-color:var(--warn)}.msev .w b{color:var(--warn-text)}
+  .msev .i{border-top-color:var(--accent)}.msev .i b{color:var(--accent)}
+  .msev .o{border-top-color:var(--accent-2)}.msev .o b{color:var(--accent-2)}
+  .mchart{background:var(--panel);border:1px solid var(--panel-brd);border-radius:12px;padding:11px 13px}
+  .mchart .hd{display:flex;justify-content:space-between;gap:10px;font-size:11px;color:var(--faint);margin-bottom:9px}
+  .mchart .hd b{color:var(--text);font-size:12px;font-weight:600}
+  .mchart svg{display:block;width:100%;height:86px}
+  .mbars{display:flex;align-items:flex-end;gap:4px;height:84px;border-bottom:1px solid rgba(var(--ink),0.08)}
+  .mbars span{flex:1;min-width:0;display:flex;flex-direction:column-reverse;border-radius:3px 3px 0 0;overflow:hidden}
+  .mbars i{display:block}
+  .mbars .bc{background:#ff6b6bcc}.mbars .bm{background:#febc2ecc}.mbars .bw{background:#6d8bffcc}
+  .mbars.one i{background:color-mix(in srgb,var(--pa) 75%,transparent)}
+  .mlegend{display:flex;gap:14px;font-size:10.5px;color:var(--faint);margin-top:8px;flex-wrap:wrap}
+  .mlegend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;vertical-align:middle}
+  .mtable{width:100%;border-collapse:collapse;font-size:12px;margin-top:4px}
+  .mtable th{font-size:10px;letter-spacing:.8px;text-transform:uppercase;color:var(--faint);font-weight:600;text-align:left;padding:6px 8px;border-bottom:1px solid var(--panel-brd)}
+  .mtable td{padding:7px 8px;border-bottom:1px solid rgba(var(--ink),0.04);color:var(--muted)}
+  .mtable td:first-child{color:var(--text)}
+  .tag-ok,.mtable td.tag-ok{color:var(--accent-2)}.tag-warn,.mtable td.tag-warn{color:var(--warn)}.tag-crit,.mtable td.tag-crit{color:var(--crit-text)}
+  .mnote{margin-top:10px;font-size:11.5px;color:var(--muted);background:color-mix(in srgb,var(--pa) 10%,transparent);border:1px solid color-mix(in srgb,var(--pa) 30%,transparent);border-radius:9px;padding:8px 11px}
+  .mnote b{color:var(--text)}
+  /* Session timeline */
+  .msearch{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:rgba(var(--ink),0.04);border:1px solid var(--panel-brd);border-radius:10px;padding:8px 12px;font-size:12px;color:var(--faint);margin-bottom:12px}
+  .msearch code{color:var(--text);font-size:12.5px}
+  .msearch em{font-style:normal;margin-left:auto;color:var(--accent-2)}
+  .mtl{display:grid;gap:0;position:relative;padding-left:14px;border-left:2px solid rgba(var(--ink),0.08)}
+  .mtl .ev{position:relative;padding:5px 0 9px 10px;font-size:12px}
+  .mtl .ev::before{content:"";position:absolute;left:-21px;top:9px;width:10px;height:10px;border-radius:50%;background:var(--pa);box-shadow:0 0 0 3px var(--bg-2)}
+  .mtl .ev.ok::before{background:var(--accent-2)}.mtl .ev.crit::before{background:var(--crit)}.mtl .ev.warn::before{background:var(--warn)}
+  .mtl time{font-family:var(--mono);font-size:11px;color:var(--faint);margin-right:8px}
+  .mtl b{font-weight:600}
+  .mtl span{display:block;color:var(--muted);font-size:11.5px}
+  /* HUB-Spoke */
+  .hs{display:grid;grid-template-columns:1fr minmax(70px,1.1fr) 1fr;align-items:center;gap:8px;margin-bottom:12px}
+  .hs .dev{background:var(--panel);border:1px solid var(--panel-brd);border-radius:12px;padding:10px 12px;text-align:center}
+  .hs .dev small{display:block;font-size:10px;letter-spacing:1.2px;color:var(--pa);font-weight:700}
+  .hs .dev b{display:block;font-size:13px}
+  .hs .dev span{font-size:11px;color:var(--faint)}
+  .hs .link{text-align:center;font-size:10.5px;color:var(--faint)}
+  .hs .link i{display:block;height:2px;margin-bottom:6px;background:repeating-linear-gradient(90deg,var(--pa) 0 8px,transparent 8px 13px);background-size:26px 2px;animation:flow 1.2s linear infinite}
+  @keyframes flow{to{background-position:26px 0}}
+  /* Agentic chat */
+  .chat{display:grid;gap:8px;font-size:12px}
+  .chat .u{justify-self:end;max-width:85%;background:color-mix(in srgb,var(--pa) 20%,transparent);border-radius:12px 12px 3px 12px;padding:8px 11px}
+  .chat .tool{font-family:var(--mono);font-size:11px;color:var(--faint);padding-left:4px}
+  .chat .tool b{color:var(--accent-2);font-weight:500}
+  .chat .a{max-width:92%;background:var(--panel);border:1px solid var(--panel-brd);border-radius:12px 12px 12px 3px;padding:9px 12px;color:var(--muted)}
+  .chat .a b{color:var(--text)}
+
+  /* Views (progressive enhancement: without JS every view stays visible) */
+  .js .view{display:none}
+  .js .view.active{display:block;animation:fadeIn .35s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion: reduce){.js .view.active{animation:none}.hs .link i{animation:none}}
+
+  @media(max-width:640px){
+    .mock-body{grid-template-columns:1fr}
+    .mock-side{display:flex;gap:6px;overflow-x:auto;border-right:0;border-bottom:1px solid var(--panel-brd);padding:10px}
+    .mock-side .grp{display:none}
+    .mock-side .item{width:auto;flex:none}
+    .mrow{grid-template-columns:1fr 1fr}
+    .msev{grid-template-columns:1fr 1fr}
+  }
+
+  /* Hero mock: the app's home screen with its product picker */
+  .home{padding:26px 26px 24px}
+  .home-h{font-size:15px;font-weight:700;margin-bottom:4px}
+  .home-sub{font-size:12.5px;color:var(--faint);margin-bottom:16px}
+  .pick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .pick-card{--pa:var(--accent);display:grid;gap:3px;text-align:left;padding:14px 15px;border-radius:13px;cursor:pointer;
+    background:var(--panel);border:1px solid var(--panel-brd);transition:all .2s;min-width:0}
+  .pick-card[data-pick="srx"]{--pa:var(--accent-3)}
+  .pick-card[data-pick="edgeconnect"]{--pa:var(--accent-2)}
+  .pick-card:hover{border-color:color-mix(in srgb,var(--pa) 50%,transparent)}
+  .pick-card.active{border-color:var(--pa);background:color-mix(in srgb,var(--pa) 10%,transparent);box-shadow:0 0 0 3px color-mix(in srgb,var(--pa) 18%,transparent)}
+  .pick-card .pn{font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px}
+  .pick-card .pn i{width:9px;height:9px;border-radius:50%;background:var(--pa)}
+  .pick-card .pf{font-size:11.5px;color:var(--muted)}
+  .pick-card .pi{font-size:10.5px;font-family:var(--mono);color:var(--faint)}
+  .modes{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap}
+  .modes button{font-size:12px;padding:6px 12px;border-radius:999px;cursor:pointer;background:none;border:1px solid var(--panel-brd);color:var(--muted);transition:all .2s}
+  .modes button:hover{color:var(--text)}
+  .modes button.active{background:color-mix(in srgb,var(--accent) 18%,transparent);border-color:var(--accent);color:var(--text)}
+  .modes[hidden]{display:none}
+  .drop{margin-top:14px;display:grid;grid-template-columns:repeat(var(--slots,1),minmax(0,1fr));gap:12px}
+  .slot{border:1.5px dashed color-mix(in srgb,var(--pa,var(--accent)) 45%,transparent);border-radius:14px;padding:22px 16px;text-align:center;
+    background:color-mix(in srgb,var(--pa,var(--accent)) 5%,transparent);transition:border-color .3s,background .3s}
+  .slot svg{width:26px;height:26px;stroke:var(--pa,var(--accent));fill:none;stroke-width:1.8;margin-bottom:6px}
+  .slot b{display:block;font-size:14px}
+  .slot span{display:block;font-size:12px;color:var(--faint);margin-top:2px}
+  .home-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;font-size:12px;color:var(--faint)}
+  .home-foot a{color:var(--pa,var(--accent));font-weight:600}
+  .home-foot a:hover{text-decoration:underline}
+  @media(max-width:640px){.pick{grid-template-columns:1fr}.home{padding:18px}}
 
   /* Sections */
   section{padding:72px 0}
-  .sec-head{text-align:center;max-width:660px;margin:0 auto 48px}
+  .sec-head{text-align:center;max-width:680px;margin:0 auto 44px}
   .eyebrow{font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
   h2{font-size:clamp(28px,4vw,42px);font-weight:800;letter-spacing:-1px;margin:0 0 14px}
   .sec-head p{color:var(--muted);font-size:17px;margin:0}
 
+  /* Features + platform filter */
+  .filters{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:-18px 0 28px}
+  .filters button{font-size:13.5px;font-weight:600;padding:7px 15px;border-radius:999px;cursor:pointer;background:var(--panel);border:1px solid var(--panel-brd);color:var(--muted);transition:all .2s}
+  .filters button:hover{color:var(--text)}
+  .filters button[aria-pressed="true"]{color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent-3));border-color:transparent}
   .features{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
   @media(max-width:900px){.features{grid-template-columns:1fr 1fr}}
   @media(max-width:600px){.features{grid-template-columns:1fr}}
-  .fcard{background:var(--panel);border:1px solid var(--panel-brd);border-radius:var(--radius);padding:26px;transition:all .25s;position:relative;overflow:hidden}
+  .fcard{background:var(--panel);border:1px solid var(--panel-brd);border-radius:var(--radius);padding:24px;transition:all .25s;position:relative;overflow:hidden}
   .fcard:hover{border-color:rgba(109,139,255,0.35);transform:translateY(-3px);background:rgba(109,139,255,0.04)}
-  .ficon{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;margin-bottom:16px;
+  .fcard.dim,.js-reveal .fcard.reveal.dim{opacity:.22;transform:scale(.98);filter:saturate(.3)}
+  .fcard.dim:hover,.js-reveal .fcard.reveal.dim:hover{transform:scale(.98)}
+  .ficon{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;margin-bottom:14px;
     background:linear-gradient(135deg,rgba(109,139,255,0.22),rgba(160,107,255,0.18));border:1px solid var(--panel-brd)}
   .ficon svg{width:22px;height:22px;stroke:var(--accent);fill:none;stroke-width:1.7}
   .fcard h3{font-size:17px;margin:0 0 8px;font-weight:700}
   .fcard p{color:var(--muted);font-size:14.5px;margin:0}
+  .fplat{display:flex;gap:5px;margin-top:14px;flex-wrap:wrap}
+  .fplat span{font-size:10.5px;font-weight:600;letter-spacing:.4px;padding:2px 8px;border-radius:6px;border:1px solid var(--panel-brd);color:var(--faint)}
 
   /* Stats */
   .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:8px}
   @media(max-width:700px){.stats{grid-template-columns:1fr 1fr}}
   .stat{text-align:center;padding:28px 16px;background:var(--panel);border:1px solid var(--panel-brd);border-radius:var(--radius)}
-  .stat .n{font-size:38px;font-weight:800;background:linear-gradient(120deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .stat .n{font-size:38px;font-weight:800;font-variant-numeric:tabular-nums;background:linear-gradient(120deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent}
   .stat .l{color:var(--muted);font-size:14px;margin-top:6px}
 
-  /* Platforms */
-  .plat{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-  @media(max-width:760px){.plat{grid-template-columns:1fr}}
-  .pcard{background:linear-gradient(180deg,rgba(255,255,255,0.035),rgba(255,255,255,0.01));border:1px solid var(--panel-brd);border-radius:var(--radius);padding:30px}
-  .pcard h3{font-size:20px;margin:0 0 6px;display:flex;align-items:center;gap:10px}
-  .ptag{font-size:11px;font-weight:600;color:var(--accent-2);background:rgba(57,214,196,0.12);border:1px solid rgba(57,214,196,0.25);padding:3px 9px;border-radius:7px}
-  .pcard p{color:var(--muted);font-size:14.5px;margin:0 0 18px}
-  .pcard ul{list-style:none;padding:0;margin:0;display:grid;gap:9px}
+  /* Platforms: product tabs + spotlight */
+  .plat{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:980px){.plat{grid-template-columns:1fr}}
+  .pcard{--pa:var(--accent);position:relative;cursor:pointer;display:flex;flex-direction:column;background:linear-gradient(180deg,rgba(var(--ink),0.035),rgba(var(--ink),0.01));
+    border:1px solid var(--panel-brd);border-radius:var(--radius);padding:26px;transition:border-color .25s,background .25s,transform .25s,box-shadow .25s}
+  .pcard[data-p="srx"]{--pa:var(--accent-3)}
+  .pcard[data-p="edgeconnect"]{--pa:var(--accent-2)}
+  .pcard:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--pa) 45%,transparent)}
+  .pcard[aria-selected="true"]{border-color:var(--pa);background:linear-gradient(180deg,color-mix(in srgb,var(--pa) 11%,transparent),rgba(var(--ink),0.01));
+    box-shadow:0 18px 50px color-mix(in srgb,var(--pa) 18%,transparent)}
+  .pcard[aria-selected="true"]::after{content:"";position:absolute;left:50%;bottom:-11px;width:20px;height:20px;transform:translateX(-50%) rotate(45deg);
+    background:var(--bg);border-right:1px solid var(--pa);border-bottom:1px solid var(--pa)}
+  @media(max-width:980px){.pcard[aria-selected="true"]::after{display:none}}
+  .pcard h3{font-size:19px;margin:0 0 6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .ptag{font-size:11px;font-weight:600;color:var(--pa);background:color-mix(in srgb,var(--pa) 12%,transparent);border:1px solid color-mix(in srgb,var(--pa) 28%,transparent);padding:3px 9px;border-radius:7px}
+  .pcard p{color:var(--muted);font-size:14.5px;margin:0 0 16px}
+  .pcard ul{list-style:none;padding:0;margin:0;display:grid;gap:8px}
   .pcard li{display:flex;gap:10px;font-size:14px;color:var(--muted)}
-  .pcard li svg{width:16px;height:16px;flex:none;margin-top:3px;stroke:var(--accent-2);fill:none;stroke-width:2}
+  .pcard li svg{width:16px;height:16px;flex:none;margin-top:3px;stroke:var(--pa);fill:none;stroke-width:2}
+  .pcard .explore{display:inline-flex;align-items:center;gap:6px;margin-top:auto;padding-top:16px;font-size:13.5px;font-weight:600;color:var(--pa)}
+  .pcard .explore svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.2;transition:transform .2s}
+  .pcard[aria-selected="true"] .explore svg{transform:rotate(90deg)}
+  .badge-new{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--on-accent);background:var(--accent-2);padding:2px 7px;border-radius:999px}
+
+  .spot{--pa:var(--accent);margin-top:34px;padding:26px;border-radius:22px;border:1px solid color-mix(in srgb,var(--pa) 28%,transparent);
+    background:linear-gradient(180deg,color-mix(in srgb,var(--pa) 6%,transparent),rgba(var(--ink),0.01))}
+  .spot[data-p="srx"]{--pa:var(--accent-3)}
+  .spot[data-p="edgeconnect"]{--pa:var(--accent-2)}
+  .js .spot[hidden]{display:none}
+  .js .spot:not([hidden]){animation:fadeIn .4s ease}
+  @media (prefers-reduced-motion: reduce){.js .spot:not([hidden]){animation:none}}
+  .spot-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+  .spot-head h3{font-size:22px;margin:0;letter-spacing:-.3px}
+  .spot-head p{margin:4px 0 0;color:var(--muted);font-size:14.5px;max-width:620px}
+  .spot-head .hint{font-size:12.5px;color:var(--faint);display:flex;align-items:center;gap:6px}
+  .spot-head .hint svg{width:14px;height:14px;stroke:var(--pa);fill:none;stroke-width:2}
+  .spot-layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px;align-items:start}
+  @media(max-width:960px){.spot-layout{grid-template-columns:1fr}}
+  .spot .mock{margin:0;max-width:none}
+  .points{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+  .points button{display:grid;grid-template-columns:36px 1fr;gap:13px;align-items:start;width:100%;text-align:left;cursor:pointer;
+    padding:12px 13px;border-radius:13px;background:none;border:1px solid transparent;transition:background .2s,border-color .2s}
+  .points button:hover{background:var(--panel)}
+  .points button.active{background:color-mix(in srgb,var(--pa) 9%,transparent);border-color:color-mix(in srgb,var(--pa) 35%,transparent)}
+  .points .ficon{width:36px;height:36px;border-radius:10px;margin:0;background:color-mix(in srgb,var(--pa) 14%,transparent)}
+  .points .ficon svg{width:18px;height:18px;stroke:var(--pa)}
+  .points b{display:block;font-size:15px;margin-bottom:2px}
+  .points span{color:var(--muted);font-size:13.8px}
 
   /* Steps */
   .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
   @media(max-width:760px){.steps{grid-template-columns:1fr}}
   .step{position:relative;padding:26px;background:var(--panel);border:1px solid var(--panel-brd);border-radius:var(--radius)}
-  .step .num{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600;color:#fff;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent-3));margin-bottom:14px}
+  .step .num{font-family:var(--mono);font-size:14px;font-weight:600;color:#fff;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--accent-3));margin-bottom:14px}
   .step h3{margin:0 0 8px;font-size:17px}
   .step p{color:var(--muted);font-size:14.5px;margin:0}
-  .step code{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--accent-2);background:rgba(57,214,196,0.08);padding:2px 6px;border-radius:5px}
+  .step code{font-size:12.5px;color:var(--accent-2);background:rgba(57,214,196,0.08);padding:2px 6px;border-radius:5px}
+
+  /* What's new + FAQ (native <details>) */
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
+  @media(max-width:900px){.two-col{grid-template-columns:1fr}}
+  .col-h{font-size:22px;font-weight:800;letter-spacing:-.4px;margin:0 0 16px;display:flex;align-items:center;gap:10px}
+  .acc{display:grid;gap:10px}
+  .acc details{background:var(--panel);border:1px solid var(--panel-brd);border-radius:14px;transition:border-color .2s}
+  .acc details[open]{border-color:rgba(109,139,255,0.35)}
+  .acc summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:14px 18px;font-weight:600;font-size:15px}
+  .acc summary::-webkit-details-marker{display:none}
+  .acc summary::after{content:"";margin-left:auto;width:9px;height:9px;border-right:2px solid var(--faint);border-bottom:2px solid var(--faint);transform:rotate(45deg);transition:transform .2s;flex:none}
+  .acc details[open] summary::after{transform:rotate(-135deg)}
+  .acc .body{padding:0 18px 16px;color:var(--muted);font-size:14.5px}
+  .acc .body ul{margin:0;padding-left:18px;display:grid;gap:5px}
+  .acc .body p{margin:0 0 8px}
+  .acc .body p:last-child{margin:0}
+  .ver{font-family:var(--mono);font-size:13.5px}
+  .ver-date{font-size:12.5px;color:var(--faint);font-weight:500}
+  .latest{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--on-accent);background:var(--accent-2);padding:2px 8px;border-radius:999px}
+  .latest[hidden]{display:none}
+  .more-link{display:inline-block;margin-top:12px;font-size:14px;color:var(--accent);font-weight:600}
+  .more-link:hover{color:var(--accent-2)}
 
   /* Download CTA */
   .download{text-align:center;background:linear-gradient(180deg,rgba(109,139,255,0.10),rgba(160,107,255,0.05));
@@ -171,15 +406,17 @@
   .download h2{margin-bottom:10px}
   .download p{color:var(--muted);max-width:520px;margin:0 auto 30px;font-size:17px}
   .dl-grid{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
-  .dl-btn{display:flex;align-items:center;gap:14px;padding:18px 26px;border-radius:15px;background:var(--panel);
-    border:1px solid var(--panel-brd);min-width:230px;transition:all .22s;cursor:pointer}
+  .dl-btn{position:relative;display:flex;align-items:center;gap:14px;padding:18px 26px;border-radius:15px;background:var(--panel);
+    border:1px solid var(--panel-brd);min-width:240px;transition:all .22s;cursor:pointer}
   .dl-btn:hover{border-color:rgba(109,139,255,0.45);background:rgba(109,139,255,0.06);transform:translateY(-2px)}
-  .dl-btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-3));border-color:transparent;box-shadow:0 10px 34px var(--glow)}
+  .dl-btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent-3));border-color:transparent;box-shadow:0 10px 34px var(--glow);color:#fff}
   .dl-btn svg{width:30px;height:30px;flex:none;fill:currentColor}
   .dl-btn .t{text-align:left;line-height:1.25}
   .dl-btn .t small{display:block;font-size:12px;opacity:.75;font-weight:500}
   .dl-btn .t span{font-size:16px;font-weight:700}
-  .dl-alt{margin-top:24px;font-size:14px;color:var(--faint)}
+  .dl-btn .rec{position:absolute;top:-10px;right:14px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--on-accent);background:var(--accent-2);padding:2px 8px;border-radius:999px}
+  .dl-meta{margin-top:18px;font-size:13px;color:var(--faint);min-height:1.2em}
+  .dl-alt{margin-top:14px;font-size:14px;color:var(--faint)}
   .dl-alt a{color:var(--accent);font-weight:600;border-bottom:1px solid rgba(109,139,255,0.4)}
   .dl-alt a:hover{color:var(--accent-2);border-color:var(--accent-2)}
 
@@ -193,58 +430,29 @@
   .foot-copy{color:var(--faint);font-size:13px;margin-top:22px;text-align:center}
   .foot-copy a{color:var(--muted)}
 
-  /* EdgeConnect spotlight */
-  .pill.new{color:var(--text)}
-  .pill.new .tag{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#08090f;background:var(--accent-2);padding:2px 8px;border-radius:999px}
-  .plat.three{grid-template-columns:repeat(3,1fr)}
-  @media(max-width:980px){.plat.three{grid-template-columns:1fr}}
-  .pcard.is-new{border-color:rgba(57,214,196,0.35);background:linear-gradient(180deg,rgba(57,214,196,0.07),rgba(255,255,255,0.01))}
-  .ptag.new{color:#08090f;background:var(--accent-2);border-color:transparent}
-  .ec-layout{display:grid;grid-template-columns:1.15fr 1fr;gap:28px;align-items:center;margin-bottom:34px}
-  @media(max-width:960px){.ec-layout{grid-template-columns:1fr}}
-  .ec-layout .mock{margin:0;max-width:none}
-  .ec-layout .mock-body{grid-template-columns:172px minmax(0,1fr)}
-  .ec-layout .mock-side{padding:16px 10px}
-  .ec-layout .mock-side .item{white-space:nowrap;font-size:12.5px;padding:7px 6px}
-  .ec-layout .mock-main{min-width:0;padding:18px}
-  .ec-layout .mrow.four{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .ec-layout .mcard{padding:11px 13px}
-  .ec-layout .mcard .val{font-size:20px}
-  .mbars span{min-width:0}
-  @media(max-width:640px){.ec-layout .mock-body{grid-template-columns:1fr}}
-  .ec-points{list-style:none;padding:0;margin:0;display:grid;gap:16px}
-  .ec-points li{display:grid;grid-template-columns:36px 1fr;gap:14px;align-items:start}
-  .ec-points .ficon{width:36px;height:36px;border-radius:10px;margin:0}
-  .ec-points .ficon svg{width:18px;height:18px}
-  .ec-points b{display:block;font-size:15.5px;margin-bottom:2px}
-  .ec-points span{color:var(--muted);font-size:14.5px}
-  .mrow.four{grid-template-columns:repeat(4,1fr)}
-  @media(max-width:640px){.mrow.four{grid-template-columns:1fr 1fr}}
-  .mcard .sub{font-size:11px;color:var(--faint);margin-top:2px}
-  .msev{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
-  .msev div{border:1px solid var(--panel-brd);border-top:3px solid;border-radius:9px;padding:7px 10px;font-size:11px;color:var(--faint);background:var(--panel)}
-  .msev b{display:block;font-size:17px;line-height:1.2}
-  .msev .c{border-top-color:#ff6b6b}.msev .c b{color:#ff8f8f}
-  .msev .w{border-top-color:#febc2e}.msev .w b{color:#ffd479}
-  .msev .i{border-top-color:var(--accent)}.msev .i b{color:var(--accent)}
-  .msev .o{border-top-color:var(--accent-2)}.msev .o b{color:var(--accent-2)}
-  .mchart{background:var(--panel);border:1px solid var(--panel-brd);border-radius:12px;padding:12px 14px}
-  .mchart .hd{display:flex;justify-content:space-between;font-size:11px;color:var(--faint);margin-bottom:10px}
-  .mchart .hd b{color:var(--text);font-size:12px;font-weight:600}
-  .mbars{display:flex;align-items:flex-end;gap:4px;height:84px;border-bottom:1px solid rgba(255,255,255,0.08)}
-  .mbars span{flex:1;display:flex;flex-direction:column-reverse;border-radius:3px 3px 0 0;overflow:hidden}
-  .mbars i{display:block}
-  .mbars .bc{background:#ff6b6bcc}.mbars .bm{background:#febc2ecc}.mbars .bw{background:#6d8bffcc}
-  .mlegend{display:flex;gap:14px;font-size:10.5px;color:var(--faint);margin-top:8px}
-  .mlegend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;vertical-align:middle}
-
-  .reveal{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
-  .reveal.in{opacity:1;transform:none}
+  /* Scroll reveal — only when JS adds .js-reveal, so content is never stuck hidden */
+  .js-reveal .reveal{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease}
+  .js-reveal .reveal.in{opacity:1;transform:none}
 </style>
+<script>
+  // Before first paint: light unless the visitor previously switched to dark.
+  (function(){
+    var root = document.documentElement, saved = null;
+    root.classList.add('js');
+    try { saved = localStorage.getItem('nexara-theme'); } catch (e) {}
+    root.setAttribute('data-theme', saved === 'dark' ? 'dark' : 'light');
+  })();
+</script>
 </head>
 <body>
 <div class="bg"></div>
 <div class="grid-bg"></div>
+
+<!-- Shared check icon -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="chk" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="upl" viewBox="0 0 24 24"><path d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
 
 <header>
   <div class="wrap nav">
@@ -257,12 +465,16 @@
       </span>
       <b>Nexara</b>
     </a>
-    <nav class="nav-links">
-      <a href="#features">Features</a>
+    <nav class="nav-links" aria-label="Main">
       <a href="#platforms">Platforms</a>
-      <a href="#edgeconnect">EdgeConnect</a>
+      <a href="#features">Features</a>
       <a href="#how">How it works</a>
+      <a href="#whats-new">What's new</a>
       <a href="https://github.com/yambati-JNPR/nexara-site" target="_blank" rel="noopener">GitHub</a>
+      <button type="button" class="theme-toggle" id="themeToggle" aria-label="Switch to light theme" title="Switch theme">
+        <svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>
+        <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
       <a class="btn btn-primary nav-cta" href="#download">Download</a>
     </nav>
   </div>
@@ -273,105 +485,54 @@
   <!-- HERO -->
   <section class="hero">
     <div class="wrap">
-      <a class="pill new" href="#edgeconnect"><span class="tag">New</span> EdgeConnect SD-WAN sysdump analysis</a>
+      <a class="pill new" href="#whats-new"><span class="tag">New</span> <span id="heroPillText">EdgeConnect workspace, HUB ↔ Spoke correlation &amp; steadier uploads</span></a>
       <h1>Turn a support bundle into<br/><span class="grad">answers in seconds</span></h1>
-      <p class="lead">Nexara is a browser-based diagnostic analyser for Juniper <b style="color:var(--text)">SSR/128T</b> routers, <b style="color:var(--text)">SRX</b> firewalls and <b style="color:var(--text)">EdgeConnect</b> SD-WAN appliances. Drop in a TSI bundle, RSI output or EdgeConnect sysdump — it runs a full suite of indicators, correlates system data, and surfaces the critical findings with corrective actions.</p>
+      <p class="lead">Nexara is a desktop diagnostic analyser for Juniper <b>SSR/128T</b> routers, <b>SRX</b> firewalls and HPE Aruba <b>EdgeConnect</b> SD-WAN appliances. Drop in a TSI bundle, RSI output or EdgeConnect sysdump — it runs a full suite of indicators, correlates the evidence and surfaces the critical findings with corrective actions.</p>
       <div class="hero-cta">
         <a class="btn btn-primary btn-lg" href="#download" id="heroDownload">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
-          Download for Desktop
+          <span id="heroDownloadLabel">Download for Desktop</span>
         </a>
-        <a class="btn btn-ghost btn-lg" href="https://github.com/yambati-JNPR/nexara-site" target="_blank" rel="noopener">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.26c0 4.5 2.87 8.32 6.84 9.67.5.09.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.49-1.11-1.49-.91-.64.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.07 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.4 9.4 0 015 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.75 0 3.94-2.34 4.81-4.57 5.06.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.59.69.49A10.02 10.02 0 0022 12.26C22 6.58 17.52 2 12 2z"/></svg>
-          View on GitHub
+        <a class="btn btn-ghost btn-lg" href="#platforms">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6l6 6-6 6"/></svg>
+          Explore the platforms
         </a>
       </div>
-      <p class="os-note" id="osNote">Available for <b>macOS</b> and <b>Windows</b> · Free &amp; open source · Runs fully in your browser</p>
+      <p class="os-note">Available for <b>macOS</b> and <b>Windows</b> · Runs locally on <b>127.0.0.1</b> · No account, no sign-in</p>
 
-      <!-- App preview -->
-      <div class="mock reveal">
+      <!-- Interactive preview of the app's home screen -->
+      <div class="mock reveal" id="heroMock" aria-label="Interactive preview of the Nexara home screen">
         <div class="mock-bar">
           <span class="d"></span><span class="d"></span><span class="d"></span>
-          <span class="mock-url">localhost:8443 — Nexara · node0.zip</span>
+          <span class="mock-url">127.0.0.1:8443 — Nexara</span>
         </div>
-        <div class="mock-body">
-          <div class="mock-side">
-            <div class="grp">Analysis</div>
-            <div class="item active"><span class="ic"></span> Critical Insights</div>
-            <div class="item"><span class="ic"></span> Deep Insights</div>
-            <div class="item"><span class="ic"></span> Debug &amp; RCA</div>
-            <div class="item"><span class="ic"></span> Performance</div>
-            <div class="grp">Views</div>
-            <div class="item"><span class="ic"></span> Sessions</div>
-            <div class="item"><span class="ic"></span> Interfaces</div>
-            <div class="item"><span class="ic"></span> Routing / BGP</div>
+        <div class="home" id="home" style="--pa:var(--accent)">
+          <div class="home-h">What are you analysing?</div>
+          <div class="home-sub">Pick a product — Nexara switches to its pipeline, upload types and workspace. Try it.</div>
+          <div class="pick" role="radiogroup" aria-label="Product (preview)">
+            <button type="button" class="pick-card active" data-pick="ssr" role="radio" aria-checked="true">
+              <span class="pn"><i></i>SSR</span><span class="pf">Juniper Session Smart Router / 128T</span><span class="pi">TSI bundle</span>
+            </button>
+            <button type="button" class="pick-card" data-pick="srx" role="radio" aria-checked="false">
+              <span class="pn"><i></i>SRX</span><span class="pf">Juniper SRX Series Firewall</span><span class="pi">RSI · /var/log · config</span>
+            </button>
+            <button type="button" class="pick-card" data-pick="edgeconnect" role="radio" aria-checked="false">
+              <span class="pn"><i></i>EdgeConnect</span><span class="pf">HPE Aruba EdgeConnect SD-WAN</span><span class="pi">ECOS sysdump</span>
+            </button>
           </div>
-          <div class="mock-main">
-            <div class="mock-h">Critical Insights</div>
-            <div class="mrow">
-              <div class="mcard"><div class="lbl">Node</div><div class="val ok">Online</div></div>
-              <div class="mcard"><div class="lbl">CPU / Mem</div><div class="val warn">78%</div><div class="mbar"><i style="width:78%"></i></div></div>
-              <div class="mcard"><div class="lbl">Sessions</div><div class="val">142k</div></div>
-            </div>
-            <div class="mfind"><span class="sev">Critical</span> Source-NAT pool exhaustion detected — port allocation failures on pool <code style="font-family:'JetBrains Mono',monospace">wan-nat</code></div>
-            <div class="mfind w"><span class="sev">Warn</span> NTP offset drift on node1 — 340 ms from reference source</div>
+          <div class="modes" id="ssrModes" role="group" aria-label="SSR analysis mode (preview)">
+            <button type="button" class="active" data-mode="router">Single router</button>
+            <button type="button" data-mode="conductor">Conductor</button>
+            <button type="button" data-mode="hub-spoke">HUB + Spoke</button>
+          </div>
+          <div class="drop" id="drop">
+            <div class="slot"><svg><use href="#upl"/></svg><b>Drop a router TSI bundle</b><span>.zip · drop both HA nodes together · up to 5 files</span></div>
+          </div>
+          <div class="home-foot">
+            <span id="homeNote">Bundles stay on this machine.</span>
+            <a id="homeLink" href="#ssr">See what Nexara finds in an SSR bundle →</a>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- FEATURES -->
-  <section id="features">
-    <div class="wrap">
-      <div class="sec-head reveal">
-        <div class="eyebrow">What it does</div>
-        <h2>Everything you need to diagnose a bundle</h2>
-        <p>Upload once. Nexara parses the whole support archive and organizes it into structured, drill-down views — no scripts, no external services.</p>
-      </div>
-      <div class="features">
-        <div class="fcard reveal">
-          <div class="ficon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <h3>Automated indicators</h3>
-          <p>55+ system, traffic, and network indicators run against every bundle — each with detection logic, thresholds, evidence, and corrective actions.</p>
-        </div>
-        <div class="fcard reveal">
-          <div class="ficon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg></div>
-          <h3>Critical &amp; Deep Insights</h3>
-          <p>A dashboard surfaces the issues that matter first, then Deep Insights lists every finding sorted by severity with expandable evidence.</p>
-        </div>
-        <div class="fcard reveal">
-          <div class="ficon"><svg viewBox="0 0 24 24"><path d="M9 3v4M15 3v4M4 7h16M6 7v13a1 1 0 001 1h10a1 1 0 001-1V7" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 12h6M9 16h4" stroke-linecap="round"/></svg></div>
-          <h3>Debug &amp; RCA</h3>
-          <p>Session debug with pattern-based log + PCAP analysis, deterministic crash stack-trace RCA, and optional LLM-powered deep root-cause analysis.</p>
-        </div>
-        <div class="fcard reveal">
-          <div class="ficon"><svg viewBox="0 0 24 24"><path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 14l3-4 3 3 5-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <h3>Performance metrics</h3>
-          <p>CPU, memory, packet processing, and top-process charts over time — with zoom and per-node filters for HA deployments.</p>
-        </div>
-        <div class="fcard reveal">
-          <div class="ficon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16" stroke-linecap="round"/></svg></div>
-          <h3>Parsed command views</h3>
-          <p>Sessions, Interfaces, Services, Alarms, Events, FIB, Routing, and BGP — core <code style="font-family:'JetBrains Mono',monospace;font-size:12px">show</code> commands rendered as clean, searchable tables.</p>
-        </div>
-        <div class="fcard reveal">
-          <div class="ficon"><svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6l8-4z" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <h3>Local &amp; private</h3>
-          <p>Runs entirely on your machine in the browser with no external dependencies. Bundles never leave your computer — AI features are optional.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- STATS -->
-  <section style="padding-top:10px">
-    <div class="wrap">
-      <div class="stats reveal">
-        <div class="stat"><div class="n">55+</div><div class="l">Automated indicators</div></div>
-        <div class="stat"><div class="n">3</div><div class="l">Platforms — SSR/128T, SRX &amp; EdgeConnect</div></div>
-        <div class="stat"><div class="n">HA</div><div class="l">Dual-node side-by-side</div></div>
-        <div class="stat"><div class="n">0</div><div class="l">External dependencies</div></div>
       </div>
     </div>
   </section>
@@ -382,88 +543,386 @@
       <div class="sec-head reveal">
         <div class="eyebrow">Three pipelines, one tool</div>
         <h2>SSR/128T, SRX and EdgeConnect, fully separated</h2>
-        <p>Nexara auto-detects the platform from your upload and switches to the right analysis pipeline. Indicators never cross platforms.</p>
+        <p>Each product gets its own parser, indicators and workspace — indicators never cross platforms. Pick a platform to explore its workspace.</p>
       </div>
-      <div class="plat three">
-        <div class="pcard reveal">
+
+      <div class="plat" role="tablist" aria-label="Platforms">
+        <div class="pcard reveal" data-p="ssr" role="tab" id="tab-ssr" aria-controls="ssr" aria-selected="true" tabindex="0">
           <h3>SSR / 128T Router <span class="ptag">TSI bundle</span></h3>
-          <p>Upload a Tech Support Info <code style="font-family:'JetBrains Mono',monospace;font-size:12px">.zip</code> for full automated analysis across all indicators.</p>
+          <p>Single router, conductor or a HUB and Spoke pair — full automated analysis from a Tech Support Info <code>.zip</code>.</p>
           <ul>
-            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg> System: version, cores, memory, processes, coredumps, NTP, HA symmetry</li>
-            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg> Traffic: adaptive encryption, TCP state, session installs, congestion</li>
-            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg> Network: peer paths, source-NAT, routing parity, DHCP, IPSec</li>
+            <li><svg><use href="#chk"/></svg> System, traffic &amp; network indicators with evidence</li>
+            <li><svg><use href="#chk"/></svg> Session debug, PCAP / SVR decoding, coredump RCA</li>
+            <li><svg><use href="#chk"/></svg> HUB ↔ Spoke correlation and Agentic Debug</li>
           </ul>
+          <span class="explore">Explore SSR workspace <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         </div>
-        <div class="pcard reveal">
+        <div class="pcard reveal" data-p="srx" role="tab" id="tab-srx" aria-controls="srx" aria-selected="false" tabindex="-1">
           <h3>SRX Firewall <span class="ptag">RSI output</span></h3>
-          <p>Upload the RSI output, a <code style="font-family:'JetBrains Mono',monospace;font-size:12px">/var/log</code> archive, and/or config. Chassis clusters parsed from a single RSI.</p>
+          <p>RSI output, a <code>/var/log</code> archive and/or config. Chassis clusters are parsed from a single RSI.</p>
           <ul>
-            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg> Chassis cluster: RG priority, split brain, failover, control/fabric links</li>
-            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg> Flow sessions, source-NAT, SPU/PFE performance, RE health</li>
-            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg> Alarms, interfaces, IPsec VPN, config audit, log scan</li>
+            <li><svg><use href="#chk"/></svg> Chassis cluster: RG priority, split brain, failover</li>
+            <li><svg><use href="#chk"/></svg> Flow sessions, source-NAT, SPU/PFE, RE health</li>
+            <li><svg><use href="#chk"/></svg> Alarms, IPsec VPN, config audit, log scan, ZTP</li>
+          </ul>
+          <span class="explore">Explore SRX workspace <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </div>
+        <div class="pcard reveal" data-p="edgeconnect" role="tab" id="tab-edgeconnect" aria-controls="edgeconnect" aria-selected="false" tabindex="-1">
+          <h3>EdgeConnect SD-WAN <span class="ptag">Sysdump</span> <span class="badge-new">New</span></h3>
+          <p>Upload an ECOS sysdump <code>.tgz</code> — Nexara detects EdgeConnect and opens its own workspace.</p>
+          <ul>
+            <li><svg><use href="#chk"/></svg> Alarm history timeline with severity filters</li>
+            <li><svg><use href="#chk"/></svg> Tunnel, interface &amp; traffic-class telemetry</li>
+            <li><svg><use href="#chk"/></svg> Restarts, error families, hardware, SAR history</li>
+          </ul>
+          <span class="explore">Explore EdgeConnect workspace <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </div>
+      </div>
+
+      <!-- ── SSR spotlight ─────────────────────────────────────────────── -->
+      <div class="spot" data-p="ssr" id="ssr" role="tabpanel" aria-labelledby="tab-ssr">
+        <div class="spot-head">
+          <div><h3>SSR / 128T workspace</h3><p>From a single TSI to a HUB and Spoke pair: insights, session-level debugging, crash RCA and an optional AI investigator.</p></div>
+          <span class="hint"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8M20 12v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1h11" stroke-linecap="round" stroke-linejoin="round"/></svg>Click a view or a feature to preview it</span>
+        </div>
+        <div class="spot-layout">
+          <div class="mock" aria-label="Illustration of the SSR workspace">
+            <div class="mock-bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="mock-url">127.0.0.1:8443 — Nexara · node0.zip + node1.zip</span></div>
+            <div class="mock-body">
+              <div class="mock-side">
+                <div class="grp">SSR Router</div>
+                <button type="button" class="item active" data-view="ssr-insights"><span class="ic"></span> Critical Insights</button>
+                <button type="button" class="item" data-view="ssr-session"><span class="ic"></span> Session Debug</button>
+                <button type="button" class="item" data-view="ssr-hub"><span class="ic"></span> HUB ↔ Spoke</button>
+                <button type="button" class="item" data-view="ssr-crash"><span class="ic"></span> Coredump Analysis</button>
+                <button type="button" class="item" data-view="ssr-ai"><span class="ic"></span> Agentic Debug</button>
+              </div>
+              <div class="mock-main">
+                <div class="view active" data-view="ssr-insights">
+                  <div class="mock-h">Critical Insights <span class="chip">HA · node0 + node1</span></div>
+                  <div class="mrow">
+                    <div class="mcard"><div class="lbl">Nodes</div><div class="val ok">2 online</div><div class="sub">HA symmetric</div></div>
+                    <div class="mcard"><div class="lbl">CPU / Mem</div><div class="val warn">78%</div><div class="mbar"><i class="warn" style="width:78%"></i></div></div>
+                    <div class="mcard"><div class="lbl">Sessions</div><div class="val">142k</div><div class="sub">peak in window</div></div>
+                  </div>
+                  <div class="msev"><div class="c"><b>2</b>Critical</div><div class="w"><b>5</b>Warning</div><div class="i"><b>9</b>Info</div><div class="o"><b>27</b>OK</div></div>
+                  <div class="mfind"><span class="sev">Critical</span> <span>Source-NAT pool exhaustion — port allocation failures on pool <code>wan-nat</code></span></div>
+                  <div class="mfind"><span class="sev">Critical</span> <span>BFD flaps to peer <code>dc-hub</code> on wan1 — classified as path loss</span></div>
+                  <div class="mfind w"><span class="sev">Warn</span> <span>NTP offset drift on node1 — 340 ms from reference source</span></div>
+                </div>
+                <div class="view" data-view="ssr-session">
+                  <div class="mock-h">Session Debug</div>
+                  <div class="msearch">Session ID <code>43f473c0</code><em>partial ID · 1 match</em></div>
+                  <div class="mtl">
+                    <div class="ev ok"><time>10:42:07.112</time><b>Session installed</b><span>10.20.1.15:51544 → 172.16.8.4:443 TCP · lan → wan1</span></div>
+                    <div class="ev"><time>10:42:07.113</time><b>Source NAT</b><span>→ 203.0.113.10:31022 · pool wan-nat</span></div>
+                    <div class="ev"><time>10:42:07.114</time><b>Waypoint allocated</b><span>SVR to peer dc-hub</span></div>
+                    <div class="ev crit"><time>10:42:11.590</time><b>Session dropped</b><span>No reverse flow — SYN retransmitted ×3</span></div>
+                  </div>
+                  <div class="mnote">PCAP · SVR metadata decoded · same session matched on HA peer <b>node1</b> by UUID</div>
+                </div>
+                <div class="view" data-view="ssr-hub">
+                  <div class="mock-h">HUB ↔ Spoke correlation</div>
+                  <div class="hs">
+                    <div class="dev"><small>HUB</small><b>dc-hub-01</b><span>3 peer paths</span></div>
+                    <div class="link"><i></i>wan1 · NAT detected</div>
+                    <div class="dev"><small>SPOKE</small><b>branch-114</b><span>2 peer paths</span></div>
+                  </div>
+                  <table class="mtable">
+                    <thead><tr><th>Check</th><th>HUB</th><th>Spoke</th><th>Evidence</th></tr></thead>
+                    <tbody>
+                      <tr><td>Peer path wan1</td><td>up</td><td>up</td><td class="tag-ok">Confirmed</td></tr>
+                      <tr><td>Peer path lte0</td><td>up</td><td>down</td><td class="tag-warn">Likely</td></tr>
+                      <tr><td>LAN prefixes in FIB</td><td>12/12</td><td>11/12</td><td class="tag-crit">1 missing</td></tr>
+                      <tr><td>BGP neighbors</td><td>2/2</td><td>2/2</td><td class="tag-ok">Established</td></tr>
+                    </tbody>
+                  </table>
+                  <div class="mnote">Sessions matched by <b>UUID</b>, then NAT-aware 5-tuple — across both devices' captures</div>
+                </div>
+                <div class="view" data-view="ssr-crash">
+                  <div class="mock-h">Coredump Analysis</div>
+                  <div class="mrow">
+                    <div class="mcard"><div class="lbl">Crashes</div><div class="val crit">4</div><div class="sub">in 2 hours</div></div>
+                    <div class="mcard"><div class="lbl">Process</div><div class="val sm">highway</div><div class="sub">SIGSEGV</div></div>
+                    <div class="mcard"><div class="lbl">Pattern</div><div class="val sm warn">Crash loop</div><div class="sub">~28 s recovery</div></div>
+                  </div>
+                  <div class="mtl">
+                    <div class="ev crit"><time>02:14:10</time><b>highway crashed</b><span>coredumpctl + processManager + kernel segfault, joined on PID</span></div>
+                    <div class="ev ok"><time>02:14:38</time><b>Restarted</b><span>pre-crash log context captured</span></div>
+                    <div class="ev crit"><time>02:31:55</time><b>Same signature</b><span>top frames match the first crash</span></div>
+                  </div>
+                  <div class="mnote">Optional JIRA lookup · <b>2 possible known bugs</b> for this signature (your own Atlassian token)</div>
+                </div>
+                <div class="view" data-view="ssr-ai">
+                  <div class="mock-h">Agentic Debug <span class="chip">Claude · OpenAI · Copilot</span></div>
+                  <div class="chat">
+                    <div class="u">BFD to dc-hub keeps flapping since 09:00 — why?</div>
+                    <div class="tool">▸ <b>search_logs</b>("bfd", 08:45–09:30) · 214 lines</div>
+                    <div class="tool">▸ <b>read_playbook</b>("bfd-flap")</div>
+                    <div class="tool">▸ <b>get_runtime_stats</b>("peer paths")</div>
+                    <div class="a"><b>Likely root cause:</b> loss on wan1 begins at 08:58, before the first BFD down; peer paths over MPLS stay up. Check the wan1 circuit — evidence and log lines attached.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <ul class="points">
+            <li><button type="button" class="active" data-view="ssr-insights"><span class="ficon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg></span><div><b>Critical &amp; Deep Insights</b><span>40+ SSR indicators across system, traffic and network — each finding with evidence and a corrective action. HA nodes side by side.</span></div></button></li>
+            <li><button type="button" data-view="ssr-session"><span class="ficon"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>Session Debug &amp; PCAP</b><span>Find a session by ID (even a partial one) or 5-tuple, follow it through the logs, decode SVR metadata and match it on the HA peer.</span></div></button></li>
+            <li><button type="button" data-view="ssr-hub"><span class="ficon"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2.5"/><circle cx="19" cy="12" r="2.5"/><path d="M7.5 12h9" stroke-linecap="round" stroke-dasharray="2 2.5"/></svg></span><div><b>HUB ↔ Spoke correlation</b><span>Drop each device's TSI into its own slot: peer paths from both ends, NAT, FIB coverage of LAN prefixes, BGP and matched sessions.</span></div></button></li>
+            <li><button type="button" data-view="ssr-crash"><span class="ficon"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L2.4 18a2 2 0 001.7 3h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>Coredump RCA</b><span>A crash timeline per node: crash loops, repeat signatures, recovery time and pre-crash log context, plus optional JIRA known-bug search.</span></div></button></li>
+            <li><button type="button" data-view="ssr-ai"><span class="ficon"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z" stroke-linejoin="round"/></svg></span><div><b>Agentic Debug (optional)</b><span>Describe the problem; an AI agent searches the bundle with built-in playbooks and cites its evidence. Bring your own Claude, OpenAI or Copilot.</span></div></button></li>
           </ul>
         </div>
-        <div class="pcard is-new reveal">
-          <h3>EdgeConnect SD-WAN <span class="ptag new">Sysdump</span></h3>
-          <p>Upload an EdgeConnect sysdump <code style="font-family:'JetBrains Mono',monospace;font-size:12px">.tgz</code> — Nexara detects ECOS and switches to its own workspace.</p>
-          <ul>
-            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg> Alarm history timeline with severity, action and category filters</li>
-            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg> Tunnel, interface and traffic-class telemetry in bps / Kbps / Mbps</li>
-            <li><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/></svg> Process restarts, error families, hardware sensors, SAR history</li>
+      </div>
+
+      <!-- ── SRX spotlight ─────────────────────────────────────────────── -->
+      <div class="spot" data-p="srx" id="srx" role="tabpanel" aria-labelledby="tab-srx">
+        <div class="spot-head">
+          <div><h3>SRX workspace</h3><p>Chassis clusters, flow and NAT health, SPU load and every alarm — parsed from the RSI you already collect.</p></div>
+          <span class="hint"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8M20 12v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1h11" stroke-linecap="round" stroke-linejoin="round"/></svg>Click a view or a feature to preview it</span>
+        </div>
+        <div class="spot-layout">
+          <div class="mock" aria-label="Illustration of the SRX workspace">
+            <div class="mock-bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="mock-url">127.0.0.1:8443 — Nexara · rsi-fw-cluster.txt</span></div>
+            <div class="mock-body">
+              <div class="mock-side">
+                <div class="grp">SRX</div>
+                <button type="button" class="item active" data-view="srx-overview"><span class="ic"></span> Overview</button>
+                <button type="button" class="item" data-view="srx-cluster"><span class="ic"></span> Chassis Cluster</button>
+                <button type="button" class="item" data-view="srx-flow"><span class="ic"></span> Flow &amp; NAT</button>
+                <button type="button" class="item" data-view="srx-findings"><span class="ic"></span> Findings</button>
+              </div>
+              <div class="mock-main">
+                <div class="view active" data-view="srx-overview">
+                  <div class="mock-h">SRX Overview <span class="chip">chassis cluster</span></div>
+                  <div class="mrow two">
+                    <div class="mcard"><div class="lbl">Model</div><div class="val sm">SRX4600</div><div class="sub">2 nodes</div></div>
+                    <div class="mcard"><div class="lbl">Junos</div><div class="val sm">22.4R3-S2</div><div class="sub">both nodes match</div></div>
+                    <div class="mcard"><div class="lbl">Primary</div><div class="val sm ok">node0</div><div class="sub">RG0 · RG1</div></div>
+                    <div class="mcard"><div class="lbl">RE uptime</div><div class="val sm">41 days</div><div class="sub">no recent reboot</div></div>
+                  </div>
+                  <div class="msev"><div class="c"><b>1</b>Critical</div><div class="w"><b>3</b>Warning</div><div class="i"><b>4</b>Info</div><div class="o"><b>12</b>OK</div></div>
+                  <div class="mfind"><span class="sev">Critical</span> <span>Major chassis alarm — FPC 0 reported a hardware error</span></div>
+                </div>
+                <div class="view" data-view="srx-cluster">
+                  <div class="mock-h">Chassis Cluster <span class="chip">priority node0 / node1</span></div>
+                  <table class="mtable">
+                    <thead><tr><th>Group</th><th>node0</th><th>node1</th><th>Status</th></tr></thead>
+                    <tbody>
+                      <tr><td>RG0</td><td>200</td><td>100</td><td class="tag-ok">Primary: node0</td></tr>
+                      <tr><td>RG1</td><td>200</td><td>100</td><td class="tag-ok">Primary: node0</td></tr>
+                      <tr><td>Control link</td><td>up</td><td>up</td><td class="tag-ok">Healthy</td></tr>
+                      <tr><td>Fabric link</td><td>up</td><td>up</td><td class="tag-warn">2 flaps</td></tr>
+                    </tbody>
+                  </table>
+                  <div class="mfind w"><span class="sev">Warn</span> <span>Fabric link flapped twice — check fab0 / fab1 cabling and optics</span></div>
+                  <div class="mnote">No split-brain detected · last failover <b>12 days ago</b> (manual)</div>
+                </div>
+                <div class="view" data-view="srx-flow">
+                  <div class="mock-h">Flow, NAT &amp; SPU</div>
+                  <div class="mrow two">
+                    <div class="mcard"><div class="lbl">Flow sessions</div><div class="val">61%</div><div class="mbar"><i style="width:61%"></i></div><div class="sub">of platform max</div></div>
+                    <div class="mcard"><div class="lbl">NAT pool src-pool-1</div><div class="val warn">92%</div><div class="mbar"><i class="warn" style="width:92%"></i></div><div class="sub">ports in use</div></div>
+                    <div class="mcard"><div class="lbl">SPU CPU</div><div class="val">48%</div><div class="mbar"><i style="width:48%"></i></div><div class="sub">peak across SPCs</div></div>
+                    <div class="mcard"><div class="lbl">RE memory</div><div class="val">57%</div><div class="mbar"><i style="width:57%"></i></div><div class="sub">routing engine</div></div>
+                  </div>
+                  <div class="mfind w"><span class="sev">Warn</span> <span>Source-NAT pool <code>src-pool-1</code> nearing exhaustion</span></div>
+                </div>
+                <div class="view" data-view="srx-findings">
+                  <div class="mock-h">Findings</div>
+                  <div class="mfind"><span class="sev">Critical</span> <span>Major chassis alarm — FPC 0 hardware error</span></div>
+                  <div class="mfind w"><span class="sev">Warn</span> <span>IPsec VPN — 3 tunnels inactive</span></div>
+                  <div class="mfind w"><span class="sev">Warn</span> <span>Config audit — insecure management service enabled</span></div>
+                  <div class="mfind i"><span class="sev">Info</span> <span>Log scan — 1.2k RT_FLOW session-deny messages</span></div>
+                  <div class="mfind i"><span class="sev">Info</span> <span>ZTP onboarding completed after 2 retries</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <ul class="points">
+            <li><button type="button" class="active" data-view="srx-overview"><span class="ficon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16" stroke-linecap="round"/></svg></span><div><b>Overview from one RSI</b><span>Model, Junos version, cluster roles and RE health for every node — 17 SRX-specific indicators run automatically.</span></div></button></li>
+            <li><button type="button" data-view="srx-cluster"><span class="ficon"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="7" height="14" rx="1.5"/><rect x="14" y="5" width="7" height="14" rx="1.5"/><path d="M10 9h4M10 15h4" stroke-linecap="round"/></svg></span><div><b>Chassis cluster</b><span>Redundancy-group priorities, split-brain and failover history, control and fabric link health.</span></div></button></li>
+            <li><button type="button" data-view="srx-flow"><span class="ficon"><svg viewBox="0 0 24 24"><path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 14l3-4 3 3 5-6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>Flow, NAT &amp; SPU</b><span>Session utilisation, source-NAT pool exhaustion and SPU / PFE load, with the evidence behind each number.</span></div></button></li>
+            <li><button type="button" data-view="srx-findings"><span class="ficon"><svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6l8-4z" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>Alarms, VPN &amp; logs</b><span>Chassis alarms, IPsec VPN state, config audit, log scan, BGP / BFD, core dumps and ZTP onboarding.</span></div></button></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- ── EdgeConnect spotlight ─────────────────────────────────────── -->
+      <div class="spot" data-p="edgeconnect" id="edgeconnect" role="tabpanel" aria-labelledby="tab-edgeconnect">
+        <div class="spot-head">
+          <div><h3>EdgeConnect workspace</h3><p>Nexara reads the logs, years of alarm history, minute-by-minute telemetry and hardware evidence a sysdump captures.</p></div>
+          <span class="hint"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8M20 12v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1h11" stroke-linecap="round" stroke-linejoin="round"/></svg>Click a view or a feature to preview it</span>
+        </div>
+        <div class="spot-layout">
+          <div class="mock" aria-label="Illustration of the EdgeConnect workspace">
+            <div class="mock-bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="mock-url">127.0.0.1:8443 — Nexara · sysdump-edge-01.tgz</span></div>
+            <div class="mock-body">
+              <div class="mock-side">
+                <div class="grp">EdgeConnect</div>
+                <button type="button" class="item active" data-view="ec-overview"><span class="ic"></span> Overview</button>
+                <button type="button" class="item" data-view="ec-indicators"><span class="ic"></span> Key Indicators</button>
+                <button type="button" class="item" data-view="ec-alarms"><span class="ic"></span> Alarms Timeline</button>
+                <button type="button" class="item" data-view="ec-perf"><span class="ic"></span> CPU &amp; Memory</button>
+                <button type="button" class="item" data-view="ec-net"><span class="ic"></span> Network Telemetry</button>
+              </div>
+              <div class="mock-main">
+                <div class="view active" data-view="ec-overview">
+                  <div class="mock-h">EdgeConnect Overview</div>
+                  <div class="mrow two">
+                    <div class="mcard"><div class="lbl">Tunnels</div><div class="val">312</div><div class="sub">1 down</div></div>
+                    <div class="mcard"><div class="lbl">Peak WAN</div><div class="val">640</div><div class="sub">Mbps · 1-min avg</div></div>
+                    <div class="mcard"><div class="lbl">Open alarms</div><div class="val warn">12</div><div class="sub">4 critical</div></div>
+                    <div class="mcard"><div class="lbl">Hardware</div><div class="val ok">OK</div><div class="sub">2 PSU events</div></div>
+                  </div>
+                  <div class="msev"><div class="c"><b>1</b>Critical</div><div class="w"><b>6</b>Warning</div><div class="i"><b>5</b>Info</div><div class="o"><b>0</b>OK</div></div>
+                  <div class="mnote">Evidence coverage: <b>3 config links</b> skipped safely during extraction</div>
+                </div>
+                <div class="view" data-view="ec-indicators">
+                  <div class="mock-h">Key Indicators</div>
+                  <div class="mfind"><span class="sev">Critical</span> <span>Datapath delay events — 37 in the last 24 h</span></div>
+                  <div class="mfind w"><span class="sev">Warn</span> <span>Peer identity conflict on 2 tunnels</span></div>
+                  <div class="mfind w"><span class="sev">Warn</span> <span>Process restarts — tunneld restarted twice</span></div>
+                  <div class="mfind w"><span class="sev">Warn</span> <span>Repeated error family — 4.1k <code>ERR</code> lines from one source</span></div>
+                  <div class="mfind i"><span class="sev">Info</span> <span>Potential core artifact found under <code>/var/log</code></span></div>
+                </div>
+                <div class="view" data-view="ec-alarms">
+                  <div class="mock-h">Alarms Timeline</div>
+                  <div class="mchart">
+                    <div class="hd"><b>Daily alarm raises</b><span>Last 30 days · by severity</span></div>
+                    <div class="mbars" id="ecAlarmBars"></div>
+                    <div class="mlegend"><span><i style="background:#ff6b6b"></i>Critical</span><span><i style="background:#febc2e"></i>Major</span><span><i style="background:#6d8bff"></i>Warning</span></div>
+                  </div>
+                  <div class="mnote">Group by severity, action or category · one row per alarm type, sortable</div>
+                </div>
+                <div class="view" data-view="ec-perf">
+                  <div class="mock-h">CPU &amp; Memory <span class="chip">SAR · 14 days</span></div>
+                  <div class="mchart">
+                    <div class="hd"><b>CPU busy vs. available memory</b><span>minute telemetry + SAR history</span></div>
+                    <svg viewBox="0 0 300 86" preserveAspectRatio="none" aria-hidden="true">
+                      <polyline fill="none" stroke="var(--accent-2)" stroke-width="2" points="0,62 20,58 40,60 60,52 80,55 100,40 120,46 140,30 160,38 180,22 200,34 220,44 240,36 260,50 280,47 300,52"/>
+                      <polyline fill="none" stroke="var(--accent-3)" stroke-width="2" stroke-dasharray="4 3" points="0,30 20,31 40,30 60,33 80,34 100,36 120,35 140,40 160,41 180,44 200,43 220,42 240,44 260,45 280,44 300,46"/>
+                    </svg>
+                    <div class="mlegend"><span><i style="background:var(--accent-2)"></i>CPU busy %</span><span><i style="background:var(--accent-3)"></i>Available memory</span></div>
+                  </div>
+                  <div class="mrow" style="margin-top:12px;margin-bottom:0">
+                    <div class="mcard"><div class="lbl">Hottest sensor</div><div class="val sm">71 °C</div></div>
+                    <div class="mcard"><div class="lbl">Power draw</div><div class="val sm">182 W</div></div>
+                    <div class="mcard"><div class="lbl">Top process</div><div class="val sm">tunneld</div></div>
+                  </div>
+                </div>
+                <div class="view" data-view="ec-net">
+                  <div class="mock-h">Network Telemetry</div>
+                  <table class="mtable">
+                    <thead><tr><th>Interface</th><th>Peak</th><th>Errors</th><th>Drops</th></tr></thead>
+                    <tbody>
+                      <tr><td>wan0</td><td>640 Mbps</td><td class="tag-ok">0</td><td>0</td></tr>
+                      <tr><td>wan1</td><td>210 Mbps</td><td class="tag-warn">12 CRC</td><td>48</td></tr>
+                      <tr><td>lan0</td><td>590 Mbps</td><td class="tag-ok">0</td><td>0</td></tr>
+                    </tbody>
+                  </table>
+                  <div class="mchart" style="margin-top:10px">
+                    <div class="hd"><b>wan0 throughput</b><span>1-minute averages</span></div>
+                    <div class="mbars one" id="ecNetBars" style="height:56px"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <ul class="points">
+            <li><button type="button" class="active" data-view="ec-overview"><span class="ficon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16" stroke-linecap="round"/></svg></span><div><b>Overview</b><span>Tunnels, peak WAN throughput, open alarms and hardware at a glance — with any gaps in the evidence called out.</span></div></button></li>
+            <li><button type="button" data-view="ec-indicators"><span class="ficon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg></span><div><b>Key indicators</b><span>Datapath delays, peer identity conflicts, management backlogs, process restarts, core artifacts and repeated error families.</span></div></button></li>
+            <li><button type="button" data-view="ec-alarms"><span class="ficon"><svg viewBox="0 0 24 24"><path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 16V11M11 16V7M15 16v-4M19 16V9" stroke-linecap="round"/></svg></span><div><b>Alarms timeline</b><span>Years of raises and clears stacked by severity, action or category — filter, group and sort.</span></div></button></li>
+            <li><button type="button" data-view="ec-perf"><span class="ficon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3" stroke-linecap="round"/></svg></span><div><b>CPU, memory &amp; hardware</b><span>Minute telemetry, days of SAR history, top processes, IPMI sensors, power draw and PSU events.</span></div></button></li>
+            <li><button type="button" data-view="ec-net"><span class="ficon"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>Network telemetry</b><span>Tunnels, interfaces and traffic classes in bps / Kbps / Mbps, with NIC errors, tunnel loss and drop totals.</span></div></button></li>
           </ul>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- EDGECONNECT -->
-  <section id="edgeconnect">
+  <!-- STATS -->
+  <section style="padding-top:10px">
+    <div class="wrap">
+      <div class="stats reveal">
+        <div class="stat"><div class="n" data-count="59">59</div><div class="l">Automated indicators</div></div>
+        <div class="stat"><div class="n" data-count="3">3</div><div class="l">Platforms — SSR/128T, SRX &amp; EdgeConnect</div></div>
+        <div class="stat"><div class="n" data-count="10" data-suffix=" GB">10 GB</div><div class="l">Per file · up to 5 bundles at once</div></div>
+        <div class="stat"><div class="n" data-count="0">0</div><div class="l">Accounts, sign-ins or cloud uploads</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features">
     <div class="wrap">
       <div class="sec-head reveal">
-        <div class="eyebrow">New · EdgeConnect</div>
-        <h2>EdgeConnect sysdumps, decoded</h2>
-        <p>Drop in an EdgeConnect sysdump and Nexara reads the logs, years of alarm history, minute-by-minute telemetry and hardware evidence the appliance captured — then organises it into a dedicated workspace.</p>
+        <div class="eyebrow">What it does</div>
+        <h2>Everything you need to diagnose a bundle</h2>
+        <p>Upload once. Nexara parses the whole support archive and organises it into structured, drill-down views — no scripts, no external services.</p>
       </div>
-      <div class="ec-layout">
-        <div class="mock reveal" aria-label="Illustration of the EdgeConnect overview in Nexara">
-          <div class="mock-bar">
-            <span class="d"></span><span class="d"></span><span class="d"></span>
-            <span class="mock-url">localhost:8443 — Nexara · sysdump-edge-01.tgz</span>
-          </div>
-          <div class="mock-body">
-            <div class="mock-side">
-              <div class="grp">EdgeConnect</div>
-              <div class="item active"><span class="ic"></span> Overview</div>
-              <div class="item"><span class="ic"></span> Key Indicators</div>
-              <div class="item"><span class="ic"></span> Alarms Timeline</div>
-              <div class="item"><span class="ic"></span> CPU &amp; Memory</div>
-              <div class="item"><span class="ic"></span> Network Telemetry</div>
-              <div class="item"><span class="ic"></span> System Evidence</div>
-            </div>
-            <div class="mock-main">
-              <div class="mock-h">EdgeConnect Overview</div>
-              <div class="mrow four">
-                <div class="mcard"><div class="lbl">Tunnels</div><div class="val">312</div><div class="sub">1 down</div></div>
-                <div class="mcard"><div class="lbl">Peak WAN</div><div class="val">640</div><div class="sub">Mbps · 1-min avg</div></div>
-                <div class="mcard"><div class="lbl">Open alarms</div><div class="val warn">12</div><div class="sub">4 critical</div></div>
-                <div class="mcard"><div class="lbl">Hardware</div><div class="val ok">OK</div><div class="sub">2 PSU events</div></div>
-              </div>
-              <div class="msev"><div class="c"><b>1</b>Critical</div><div class="w"><b>6</b>Warning</div><div class="i"><b>5</b>Info</div><div class="o"><b>0</b>OK</div></div>
-              <div class="mchart">
-                <div class="hd"><b>Alarms Timeline</b><span>Last 30 days · by severity</span></div>
-                <div class="mbars"><span><i class="bc" style="height:12px"></i><i class="bm" style="height:0px"></i><i class="bw" style="height:8px"></i></span><span><i class="bc" style="height:20px"></i><i class="bm" style="height:4px"></i><i class="bw" style="height:12px"></i></span><span><i class="bc" style="height:8px"></i><i class="bm" style="height:0px"></i><i class="bw" style="height:20px"></i></span><span><i class="bc" style="height:28px"></i><i class="bm" style="height:6px"></i><i class="bw" style="height:10px"></i></span><span><i class="bc" style="height:16px"></i><i class="bm" style="height:2px"></i><i class="bw" style="height:4px"></i></span><span><i class="bc" style="height:44px"></i><i class="bm" style="height:8px"></i><i class="bw" style="height:16px"></i></span><span><i class="bc" style="height:24px"></i><i class="bm" style="height:0px"></i><i class="bw" style="height:6px"></i></span><span><i class="bc" style="height:12px"></i><i class="bm" style="height:0px"></i><i class="bw" style="height:18px"></i></span><span><i class="bc" style="height:36px"></i><i class="bm" style="height:4px"></i><i class="bw" style="height:8px"></i></span><span><i class="bc" style="height:18px"></i><i class="bm" style="height:2px"></i><i class="bw" style="height:12px"></i></span><span><i class="bc" style="height:56px"></i><i class="bm" style="height:12px"></i><i class="bw" style="height:20px"></i></span><span><i class="bc" style="height:30px"></i><i class="bm" style="height:4px"></i><i class="bw" style="height:6px"></i></span><span><i class="bc" style="height:14px"></i><i class="bm" style="height:0px"></i><i class="bw" style="height:10px"></i></span><span><i class="bc" style="height:22px"></i><i class="bm" style="height:2px"></i><i class="bw" style="height:24px"></i></span><span><i class="bc" style="height:10px"></i><i class="bm" style="height:0px"></i><i class="bw" style="height:6px"></i></span><span><i class="bc" style="height:40px"></i><i class="bm" style="height:6px"></i><i class="bw" style="height:14px"></i></span><span><i class="bc" style="height:26px"></i><i class="bm" style="height:0px"></i><i class="bw" style="height:8px"></i></span><span><i class="bc" style="height:16px"></i><i class="bm" style="height:4px"></i><i class="bw" style="height:12px"></i></span></div>
-                <div class="mlegend"><span><i style="background:#ff6b6b"></i>Critical</span><span><i style="background:#febc2e"></i>Major</span><span><i style="background:#6d8bff"></i>Warning</span></div>
-              </div>
-            </div>
-          </div>
+      <div class="filters" role="group" aria-label="Filter features by platform">
+        <button type="button" data-filter="all" aria-pressed="true">All</button>
+        <button type="button" data-filter="ssr" aria-pressed="false">SSR / 128T</button>
+        <button type="button" data-filter="srx" aria-pressed="false">SRX</button>
+        <button type="button" data-filter="edgeconnect" aria-pressed="false">EdgeConnect</button>
+      </div>
+      <div class="features">
+        <div class="fcard reveal" data-plat="ssr srx edgeconnect">
+          <div class="ficon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3>Automated indicators</h3>
+          <p>59 indicators run in parallel against every bundle — each with detection logic, thresholds, evidence and corrective actions.</p>
+          <div class="fplat"><span>SSR</span><span>SRX</span><span>EdgeConnect</span></div>
         </div>
-        <ul class="ec-points reveal">
-          <li><span class="ficon"><svg viewBox="0 0 24 24"><path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 16V11M11 16V7M15 16v-4M19 16V9" stroke-linecap="round"/></svg></span><div><b>Alarms timeline</b><span>Daily alarm activity stacked by severity, action or category. Filter, group and sort years of raises and clears, with one row per alarm type.</span></div></li>
-          <li><span class="ficon"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>Network telemetry in bit rates</b><span>Tunnels, interfaces and traffic classes charted in bps, Kbps or Mbps. Port throughput sits beside NIC error counters, with tunnel loss and drop totals.</span></div></li>
-          <li><span class="ficon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg></span><div><b>Key indicators</b><span>Datapath delays, peer identity conflicts, management backlogs, process restarts, core artifacts and repeated error families, each with evidence.</span></div></li>
-          <li><span class="ficon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3" stroke-linecap="round"/></svg></span><div><b>Hardware &amp; history</b><span>IPMI sensors and power draw, power-supply events from the hardware event log, and days of SAR CPU and memory history.</span></div></li>
-          <li><span class="ficon"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>Shareable exports</b><span>A printable HTML report plus JSON and CSV exports for every appliance in the sysdump.</span></div></li>
-        </ul>
+        <div class="fcard reveal" data-plat="ssr srx edgeconnect">
+          <div class="ficon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg></div>
+          <h3>Critical &amp; Deep Insights</h3>
+          <p>The issues that matter surface first, then every finding sorted by severity with expandable, searchable evidence.</p>
+          <div class="fplat"><span>SSR</span><span>SRX</span><span>EdgeConnect</span></div>
+        </div>
+        <div class="fcard reveal" data-plat="ssr">
+          <div class="ficon"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3>Session debug &amp; PCAP</h3>
+          <p>Session search by full or partial ID, SVR metadata decoding, optional tshark dissection, and cross-node capture correlation.</p>
+          <div class="fplat"><span>SSR</span></div>
+        </div>
+        <div class="fcard reveal" data-plat="ssr">
+          <div class="ficon"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2.5"/><circle cx="19" cy="12" r="2.5"/><path d="M7.5 12h9" stroke-linecap="round" stroke-dasharray="2 2.5"/></svg></div>
+          <h3>HUB ↔ Spoke correlation</h3>
+          <p>Two devices, one view: peer-path evidence from both ends, NAT detection, FIB coverage, BGP and sessions matched across captures.</p>
+          <div class="fplat"><span>SSR</span></div>
+        </div>
+        <div class="fcard reveal" data-plat="ssr">
+          <div class="ficon"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L2.4 18a2 2 0 001.7 3h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3>Crash &amp; coredump RCA</h3>
+          <p>Crash timelines, loops and signatures with pre-crash context; optional JIRA known-bug lookup with your own token.</p>
+          <div class="fplat"><span>SSR</span></div>
+        </div>
+        <div class="fcard reveal" data-plat="ssr srx edgeconnect">
+          <div class="ficon"><svg viewBox="0 0 24 24"><path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 14l3-4 3 3 5-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3>Performance metrics</h3>
+          <p>CPU, memory, packet processing and top-process charts over time — zoomable, with per-node filters for HA.</p>
+          <div class="fplat"><span>SSR</span><span>SRX</span><span>EdgeConnect</span></div>
+        </div>
+        <div class="fcard reveal" data-plat="ssr">
+          <div class="ficon"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z" stroke-linejoin="round"/></svg></div>
+          <h3>Agentic Debug</h3>
+          <p>Optional AI investigation with built-in playbooks — Claude, OpenAI or GitHub Copilot, using your own key.</p>
+          <div class="fplat"><span>SSR</span></div>
+        </div>
+        <div class="fcard reveal" data-plat="ssr srx edgeconnect">
+          <div class="ficon"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v13a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z" stroke-linejoin="round"/><path d="M14 2v6h6M8 13h8M8 17h5" stroke-linecap="round"/></svg></div>
+          <h3>Shareable RCA reports</h3>
+          <p>A self-contained, printable HTML report to attach to a case, plus JSON and CSV exports.</p>
+          <div class="fplat"><span>SSR</span><span>SRX</span><span>EdgeConnect</span></div>
+        </div>
+        <div class="fcard reveal" data-plat="ssr srx edgeconnect">
+          <div class="ficon"><svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6l8-4z" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3>Local &amp; private</h3>
+          <p>Runs on 127.0.0.1 with no login and works air-gapped. Bundles never leave your computer — AI features are opt-in.</p>
+          <div class="fplat"><span>SSR</span><span>SRX</span><span>EdgeConnect</span></div>
+        </div>
       </div>
     </div>
   </section>
@@ -479,17 +938,96 @@
         <div class="step reveal">
           <div class="num">1</div>
           <h3>Install &amp; launch</h3>
-          <p>Download Nexara, then start it. Open <code>localhost:8443</code> in your browser — everything runs locally.</p>
+          <p>Download Nexara and start it — your browser opens at <code>127.0.0.1:8443</code>. Everything runs locally; there's nothing to sign in to.</p>
         </div>
         <div class="step reveal">
           <div class="num">2</div>
-          <h3>Drop your bundle</h3>
-          <p>Drag a <code>.zip</code> TSI or RSI bundle, or an EdgeConnect sysdump <code>.tgz</code>, onto the upload area. Upload both HA node bundles together for side-by-side analysis.</p>
+          <h3>Pick a product, drop the bundle</h3>
+          <p>Choose SSR, SRX or EdgeConnect and drop the bundle. For SSR, pick single router, conductor or HUB + Spoke; drop both HA nodes together.</p>
         </div>
         <div class="step reveal">
           <div class="num">3</div>
-          <h3>Read the findings</h3>
-          <p>Nexara runs every indicator and presents critical insights, evidence, charts, and corrective actions across structured views.</p>
+          <h3>Read, debug &amp; share</h3>
+          <p>Work through the insights, drill into sessions, crashes and telemetry, then export an RCA report for the case.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT'S NEW + FAQ -->
+  <section id="whats-new">
+    <div class="wrap two-col">
+      <div class="reveal">
+        <div class="eyebrow">Release notes</div>
+        <h2 class="col-h">What's new</h2>
+        <div class="acc" id="releases">
+          <details open data-version="v3.9.0">
+            <summary><span class="ver">v3.9.0</span> <span class="ver-date">Oct 2026</span> <span class="latest" hidden>Latest</span></summary>
+            <div class="body"><ul>
+              <li>Refreshed EdgeConnect workspace: sortable alarm summary and events, SAR history, interface drops, IPMI hardware and power evidence</li>
+              <li>Evidence-coverage notes now shown once, on the Overview</li>
+              <li>Steadier uploads: large bundles no longer stall the app while extracting</li>
+              <li>Disk-space guard across nested archives; failed uploads clean up after themselves</li>
+              <li>Closing an analysis now stops its background work (and any AI calls)</li>
+            </ul></div>
+          </details>
+          <details data-version="v3.8.0">
+            <summary><span class="ver">v3.8.0</span> <span class="ver-date">Oct 2026</span> <span class="latest" hidden>Latest</span></summary>
+            <div class="body"><ul>
+              <li>New: EdgeConnect SD-WAN sysdump analysis with its own workspace and report</li>
+              <li>Product picker on the home screen — SSR, SRX or EdgeConnect</li>
+              <li>HUB ↔ Spoke correlation for SSR, with cross-capture session matching</li>
+              <li>Optional tshark dissection for capture analysis; pcapng support</li>
+              <li>No more login — Nexara runs locally for the signed-in OS user</li>
+            </ul></div>
+          </details>
+          <details data-version="v3.7.0">
+            <summary><span class="ver">v3.7.0</span> <span class="ver-date">Sep 2026</span> <span class="latest" hidden>Latest</span></summary>
+            <div class="body"><ul>
+              <li>New HPE-styled interface with light and dark themes</li>
+              <li>Self-contained, printable RCA HTML report</li>
+            </ul></div>
+          </details>
+          <details data-version="v3.6.0">
+            <summary><span class="ver">v3.6.0</span> <span class="ver-date">Sep 2026</span> <span class="latest" hidden>Latest</span></summary>
+            <div class="body"><ul>
+              <li>Crash timeline RCA: crash loops, signatures, recovery time and pre-crash context</li>
+              <li>SVR metadata decoding and HA-peer capture correlation</li>
+              <li>Session search by partial session ID</li>
+              <li>Optional JIRA known-bug search</li>
+            </ul></div>
+          </details>
+        </div>
+        <a class="more-link" href="https://github.com/yambati-JNPR/nexara-site/releases" target="_blank" rel="noopener">All releases on GitHub →</a>
+      </div>
+      <div class="reveal">
+        <div class="eyebrow">Questions</div>
+        <h2 class="col-h">FAQ</h2>
+        <div class="acc">
+          <details>
+            <summary>Does my bundle leave my computer?</summary>
+            <div class="body"><p>No. Nexara runs on <code>127.0.0.1</code> and works fully offline. The only feature that sends anything out is Agentic Debug — and only if you add your own AI provider and start an investigation.</p></div>
+          </details>
+          <details>
+            <summary>Do I need an account?</summary>
+            <div class="body"><p>No. There's no sign-up and no login — install it and drop a bundle.</p></div>
+          </details>
+          <details>
+            <summary>What can I upload?</summary>
+            <div class="body"><ul>
+              <li><b>SSR / 128T:</b> TSI <code>.zip</code> — single router, conductor, both HA nodes, or a HUB and Spoke pair</li>
+              <li><b>SRX:</b> RSI output, a <code>/var/log</code> archive and/or config</li>
+              <li><b>EdgeConnect:</b> ECOS sysdump <code>.tgz</code></li>
+            </ul><p style="margin-top:8px">Up to 10 GB per file and 5 bundles at a time. Nested archives are unpacked automatically.</p></div>
+          </details>
+          <details>
+            <summary>Is AI required?</summary>
+            <div class="body"><p>No. Every indicator, chart and RCA is deterministic and runs locally. Agentic Debug is an optional extra for SSR bundles.</p></div>
+          </details>
+          <details>
+            <summary>Which operating systems are supported?</summary>
+            <div class="body"><p>macOS (<code>.dmg</code>) and Windows (installer <code>.exe</code>). It can also run from source anywhere Python runs.</p></div>
+          </details>
         </div>
       </div>
     </div>
@@ -501,19 +1039,20 @@
       <div class="download reveal">
         <div class="eyebrow">Get Nexara</div>
         <h2>Download for your platform</h2>
-        <p>Free and open source. Choose your operating system below — you'll always get the latest release.</p>
+        <p>Free to use. Choose your operating system below — you'll always get the latest release.</p>
         <span class="pill" id="verPill" style="display:none;margin:0 auto 24px"><span class="dot"></span> Latest release: <b id="verBadge" style="color:var(--text);margin-left:5px"></b></span>
         <div class="dl-grid">
-          <a class="dl-btn primary" id="dlMac" href="https://github.com/yambati-JNPR/nexara-site/releases/download/v3.4.0/Nexara-v3.4.0-macOS.dmg" rel="noopener">
+          <a class="dl-btn primary" id="dlMac" data-os="mac" href="https://github.com/yambati-JNPR/nexara-site/releases/latest" rel="noopener">
             <svg viewBox="0 0 24 24"><path d="M16.365 1.43c0 1.14-.42 2.22-1.17 3.02-.79.86-2.09 1.53-3.15 1.44-.14-1.09.41-2.25 1.11-3.01.78-.86 2.16-1.5 3.21-1.45zM20.5 17.13c-.6 1.38-.89 1.99-1.66 3.21-1.08 1.7-2.6 3.81-4.48 3.83-1.67.02-2.1-1.09-4.37-1.08-2.27.01-2.74 1.1-4.41 1.08-1.88-.02-3.32-1.93-4.4-3.62C-1.06 17.2-1.4 11.35 1.4 8.28c1-1.11 2.58-1.81 4.07-1.81 1.53 0 2.49 1.09 4.36 1.09 1.82 0 2.94-1.09 4.36-1.09 1.5 0 3.08.82 4.2 2.24-3.69 2.02-3.09 7.29 1.11 8.42z"/></svg>
             <span class="t"><small>Download for</small><span>macOS</span></span>
           </a>
-          <a class="dl-btn primary" id="dlWin" href="https://github.com/yambati-JNPR/nexara-site/releases/download/v3.4.0/Nexara-v3.4.0-Windows-Setup.exe" rel="noopener">
+          <a class="dl-btn primary" id="dlWin" data-os="win" href="https://github.com/yambati-JNPR/nexara-site/releases/latest" rel="noopener">
             <svg viewBox="0 0 24 24"><path d="M3 5.5L10.5 4.4v7.1H3V5.5zM3 12.5h7.5v7.1L3 18.5v-6zM11.5 4.25L21 3v8.5h-9.5V4.25zM11.5 12.5H21V21l-9.5-1.25V12.5z"/></svg>
             <span class="t"><small>Download for</small><span>Windows</span></span>
           </a>
         </div>
-        <p class="dl-alt">Prefer another route? Browse <a href="https://github.com/yambati-JNPR/nexara-site/releases" target="_blank" rel="noopener">all releases &amp; checksums on GitHub</a> or install from source via the <a href="https://github.com/yambati-JNPR/nexara-site" target="_blank" rel="noopener">repository README</a>.</p>
+        <div class="dl-meta" id="dlMeta"></div>
+        <p class="dl-alt">Prefer another route? Browse <a href="https://github.com/yambati-JNPR/nexara-site/releases" target="_blank" rel="noopener">all releases on GitHub</a> or install from source via the <a href="https://github.com/yambati-JNPR/nexara-site" target="_blank" rel="noopener">repository README</a>.</p>
       </div>
     </div>
   </section>
@@ -531,12 +1070,12 @@
         </span>
         <b>Nexara</b>
       </a>
-      <nav class="foot-links">
-        <a href="#features">Features</a>
-        <a href="#platforms">Platforms</a>
+      <nav class="foot-links" aria-label="Footer">
+        <a href="#ssr">SSR / 128T</a>
+        <a href="#srx">SRX</a>
         <a href="#edgeconnect">EdgeConnect</a>
+        <a href="#whats-new">What's new</a>
         <a href="#download">Download</a>
-        <a href="https://github.com/yambati-JNPR/nexara-site" target="_blank" rel="noopener">GitHub</a>
         <a href="https://github.com/yambati-JNPR/nexara-site/releases" target="_blank" rel="noopener">Releases</a>
       </nav>
     </div>
@@ -545,36 +1084,259 @@
 </footer>
 
 <script>
+(function(){
+  var REPO = 'yambati-JNPR/nexara-site';
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $ = function(sel, root){ return (root || document).querySelector(sel); };
+  var $$ = function(sel, root){ return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
+
   document.getElementById('yr').textContent = new Date().getFullYear();
 
-  // Auto-resolve the latest release from GitHub so the download links and version
-  // update themselves whenever a new release is published to nexara-site.
-  // If the request fails, the hard-coded links below act as a fallback.
+  // ── Light / dark theme ───────────────────────────────────────────────────
   (function(){
-    var REPO = 'yambati-JNPR/nexara-site';
-    var mac = document.getElementById('dlMac');
-    var win = document.getElementById('dlWin');
-    fetch('https://api.github.com/repos/' + REPO + '/releases/latest', {headers:{'Accept':'application/vnd.github+json'}})
-      .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
-      .then(function(rel){
-        var assets = rel.assets || [];
-        var dmg = assets.filter(function(a){ return /\.(dmg|pkg)$/i.test(a.name); })[0];
-        var exe = assets.filter(function(a){ return /\.(exe|msi)$/i.test(a.name); })[0];
-        if(dmg) mac.href = dmg.browser_download_url;
-        if(exe) win.href = exe.browser_download_url;
-        if(rel.tag_name){
-          var vb = document.getElementById('verBadge');
-          if(vb){ vb.textContent = rel.tag_name; vb.parentNode.style.display = 'inline-flex'; }
-        }
-      })
-      .catch(function(){ /* keep the hard-coded fallback links */ });
+    var root = document.documentElement, btn = $('#themeToggle');
+    function apply(theme){
+      root.setAttribute('data-theme', theme);
+      $('#themeColor').setAttribute('content', theme === 'light' ? '#f5f6fb' : '#0a0b12');
+      btn.setAttribute('aria-label', 'Switch to ' + (theme === 'light' ? 'dark' : 'light') + ' theme');
+    }
+    apply(root.getAttribute('data-theme'));
+    btn.addEventListener('click', function(){
+      var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      apply(next);
+      try { localStorage.setItem('nexara-theme', next); } catch (e) {}
+    });
   })();
 
-  // Scroll reveal
-  var io = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
-  }, {threshold:0.12});
-  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+  // ── Platform tabs ────────────────────────────────────────────────────────
+  var tabs = $$('.plat [role="tab"]');
+  var PRODUCTS = tabs.map(function(t){ return t.dataset.p; });
+
+  function selectProduct(p, opts){
+    opts = opts || {};
+    if (PRODUCTS.indexOf(p) < 0) return;
+    tabs.forEach(function(t){
+      var on = t.dataset.p === p;
+      t.setAttribute('aria-selected', on);
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+    });
+    if (opts.focus) $('#tab-' + p).focus();
+    if (opts.scroll) $('#platforms .plat').scrollIntoView({behavior: reduceMotion ? 'auto' : 'smooth', block: 'start'});
+    if (opts.updateHash !== false && location.hash !== '#' + p) history.replaceState(null, '', '#' + p);
+  }
+
+  tabs.forEach(function(t, i){
+    t.addEventListener('click', function(){ selectProduct(t.dataset.p); });
+    t.addEventListener('keydown', function(e){
+      var next = null;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = tabs[(i + 1) % tabs.length];
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = tabs[(i - 1 + tabs.length) % tabs.length];
+      else if (e.key === 'Home') next = tabs[0];
+      else if (e.key === 'End') next = tabs[tabs.length - 1];
+      else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectProduct(t.dataset.p); return; }
+      if (next) { e.preventDefault(); selectProduct(next.dataset.p, {focus: true}); }
+    });
+  });
+
+  // #ssr / #srx / #edgeconnect deep-link to a product (also from the nav and footer).
+  function fromHash(scroll){
+    var p = location.hash.slice(1);
+    if (PRODUCTS.indexOf(p) >= 0) selectProduct(p, {scroll: scroll, updateHash: false});
+  }
+  window.addEventListener('hashchange', function(){ fromHash(true); });
+  document.addEventListener('click', function(e){
+    var a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    var p = a.getAttribute('href').slice(1);
+    if (PRODUCTS.indexOf(p) >= 0) { e.preventDefault(); selectProduct(p, {scroll: true}); }
+  });
+  // Panels are all visible without JS; with JS show one at a time.
+  selectProduct(PRODUCTS[0], {updateHash: false});
+  fromHash(false);
+  if (PRODUCTS.indexOf(location.hash.slice(1)) >= 0) {
+    // Land on the tabs, not on the panel below them.
+    setTimeout(function(){ $('#platforms .plat').scrollIntoView({block: 'start'}); }, 0);
+  }
+
+  // ── Views inside each workspace preview (sidebar + feature points) ───────
+  $$('.spot').forEach(function(spot){
+    var controls = $$('button[data-view]', spot);
+    controls.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var v = btn.dataset.view;
+        controls.forEach(function(b){
+          var on = b.dataset.view === v;
+          b.classList.toggle('active', on);
+          if (b.closest('.mock-side')) b.setAttribute('aria-pressed', on);
+        });
+        $$('.view', spot).forEach(function(view){ view.classList.toggle('active', view.dataset.view === v); });
+      });
+    });
+    $$('.mock-side button', spot).forEach(function(b){ b.setAttribute('aria-pressed', b.classList.contains('active')); });
+  });
+
+  // ── Generated mini charts ────────────────────────────────────────────────
+  (function(){
+    var alarms = [[12,0,8],[20,4,12],[8,0,20],[28,6,10],[16,2,4],[44,8,16],[24,0,6],[12,0,18],[36,4,8],[18,2,12],[56,12,20],[30,4,6],[14,0,10],[22,2,24],[10,0,6],[40,6,14],[26,0,8],[16,4,12]];
+    $('#ecAlarmBars').innerHTML = alarms.map(function(d){
+      return '<span><i class="bc" style="height:' + d[0] + 'px"></i><i class="bm" style="height:' + d[1] + 'px"></i><i class="bw" style="height:' + d[2] + 'px"></i></span>';
+    }).join('');
+    var net = [18,22,30,26,34,40,38,46,52,48,44,50,56,54,42,36,40,48,52,46,38,30,26,22];
+    $('#ecNetBars').innerHTML = net.map(function(h){ return '<span><i style="height:' + h + 'px"></i></span>'; }).join('');
+  })();
+
+  // ── Hero: interactive copy of the app's home screen ──────────────────────
+  (function(){
+    var home = $('#home'), modes = $('#ssrModes'), drop = $('#drop');
+    var product = 'ssr', mode = 'router';
+    var ACCENT = {ssr: 'var(--accent)', srx: 'var(--accent-3)', edgeconnect: 'var(--accent-2)'};
+    var NAME = {ssr: 'an SSR bundle', srx: 'an SRX RSI', edgeconnect: 'an EdgeConnect sysdump'};
+    function slot(title, sub){
+      return '<div class="slot"><svg><use href="#upl"/></svg><b>' + title + '</b><span>' + sub + '</span></div>';
+    }
+    function render(){
+      home.style.setProperty('--pa', ACCENT[product]);
+      modes.hidden = product !== 'ssr';
+      var slots;
+      if (product === 'srx') slots = [slot('Drop RSI output, /var/log or config', 'Chassis clusters are parsed from a single RSI')];
+      else if (product === 'edgeconnect') slots = [slot('Drop an EdgeConnect sysdump', '.tgz · ECOS is detected automatically')];
+      else if (mode === 'conductor') slots = [slot('Drop a conductor TSI bundle', 'Assets, connectivity and managed-router health')];
+      else if (mode === 'hub-spoke') slots = [slot('HUB TSI', 'the data-center / head-end router'), slot('Spoke TSI', 'the branch router')];
+      else slots = [slot('Drop a router TSI bundle', '.zip · drop both HA nodes together · up to 5 files')];
+      drop.style.setProperty('--slots', slots.length);
+      drop.innerHTML = slots.join('');
+      $$('.pick-card', home).forEach(function(c){
+        var on = c.dataset.pick === product;
+        c.classList.toggle('active', on);
+        c.setAttribute('aria-checked', on);
+      });
+      $$('button', modes).forEach(function(b){ b.classList.toggle('active', b.dataset.mode === mode); });
+      var link = $('#homeLink');
+      link.href = '#' + product;
+      link.textContent = 'See what Nexara finds in ' + NAME[product] + ' →';
+    }
+    $$('.pick-card', home).forEach(function(c){
+      c.addEventListener('click', function(){ product = c.dataset.pick; render(); selectProduct(product, {updateHash: false}); });
+    });
+    $$('button', modes).forEach(function(b){
+      b.addEventListener('click', function(){
+        mode = b.dataset.mode;
+        render();
+        // Mirror the mode in the SSR workspace preview where there's a matching view.
+        var view = {'hub-spoke': 'ssr-hub', 'router': 'ssr-insights'}[mode];
+        var btn = view && $('#ssr .mock-side button[data-view="' + view + '"]');
+        if (btn) btn.click();
+      });
+    });
+    render();
+  })();
+
+  // ── Feature filter ───────────────────────────────────────────────────────
+  (function(){
+    var buttons = $$('.filters button'), cards = $$('.fcard[data-plat]');
+    buttons.forEach(function(b){
+      b.addEventListener('click', function(){
+        var f = b.dataset.filter;
+        buttons.forEach(function(x){ x.setAttribute('aria-pressed', x === b); });
+        cards.forEach(function(c){
+          c.classList.toggle('dim', f !== 'all' && c.dataset.plat.split(' ').indexOf(f) < 0);
+        });
+      });
+    });
+  })();
+
+  // ── Download: recommend the visitor's OS ─────────────────────────────────
+  var os = (function(){
+    var p = ((navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || navigator.userAgent || '').toLowerCase();
+    if (p.indexOf('mac') >= 0) return 'mac';
+    if (p.indexOf('win') >= 0) return 'win';
+    return null;
+  })();
+  if (os) {
+    var mine = os === 'mac' ? $('#dlMac') : $('#dlWin');
+    var other = os === 'mac' ? $('#dlWin') : $('#dlMac');
+    other.classList.remove('primary');
+    mine.parentNode.insertBefore(mine, mine.parentNode.firstChild);
+    mine.insertAdjacentHTML('beforeend', '<span class="rec">Recommended</span>');
+    $('#heroDownloadLabel').textContent = 'Download for ' + (os === 'mac' ? 'macOS' : 'Windows');
+  }
+
+  // ── Latest release: links, version, date, What's-new badge ───────────────
+  // Fallback links point at /releases/latest, which always resolves.
+  fetch('https://api.github.com/repos/' + REPO + '/releases/latest', {headers: {'Accept': 'application/vnd.github+json'}})
+    .then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function(rel){
+      var assets = rel.assets || [];
+      var dmg = assets.filter(function(a){ return /\.(dmg|pkg)$/i.test(a.name); })[0];
+      var exe = assets.filter(function(a){ return /\.(exe|msi)$/i.test(a.name); })[0];
+      if (dmg) $('#dlMac').href = dmg.browser_download_url;
+      if (exe) $('#dlWin').href = exe.browser_download_url;
+      if (!rel.tag_name) return;
+      $('#verBadge').textContent = rel.tag_name;
+      $('#verPill').style.display = 'inline-flex';
+      var parts = [];
+      if (rel.published_at) parts.push('Released ' + new Date(rel.published_at).toLocaleDateString(undefined, {year: 'numeric', month: 'short', day: 'numeric'}));
+      var mineAsset = os === 'mac' ? dmg : os === 'win' ? exe : null;
+      if (mineAsset && mineAsset.size) parts.push((mineAsset.size / 1048576).toFixed(0) + ' MB');
+      $('#dlMeta').textContent = parts.join(' · ');
+      var entry = $('#releases details[data-version="' + rel.tag_name + '"]');
+      if (entry) {
+        $('.latest', entry).hidden = false;
+      } else {
+        // A newer release than the notes on this page: list it first.
+        $('#releases').insertAdjacentHTML('afterbegin',
+          '<details open><summary><span class="ver"></span> <span class="latest">Latest</span></summary>' +
+          '<div class="body"><p>See the <a class="more-link" style="margin:0" target="_blank" rel="noopener" href="' + rel.html_url + '">release on GitHub</a>.</p></div></details>');
+        $('#releases .ver').textContent = rel.tag_name;
+        $$('#releases details[data-version]').forEach(function(d){ d.open = false; });
+      }
+    })
+    .catch(function(){ /* keep the /releases/latest fallback links */ });
+
+  // ── Nav: highlight the section in view ───────────────────────────────────
+  if ('IntersectionObserver' in window) {
+    var links = $$('.nav-links a[href^="#"]');
+    var spy = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (!e.isIntersecting) return;
+        links.forEach(function(a){ a.classList.toggle('current', a.getAttribute('href') === '#' + e.target.id); });
+      });
+    }, {rootMargin: '-45% 0px -50% 0px'});
+    ['platforms', 'features', 'how', 'whats-new', 'download'].forEach(function(id){ spy.observe(document.getElementById(id)); });
+  }
+
+  // ── Stats count up once visible ──────────────────────────────────────────
+  function countUp(el){
+    var target = +el.dataset.count, suffix = el.dataset.suffix || '';
+    if (reduceMotion || target === 0) { el.textContent = target + suffix; return; }
+    var start = null, dur = 1100;
+    function step(ts){
+      if (!start) start = ts;
+      var k = Math.min(1, (ts - start) / dur);
+      el.textContent = Math.round(target * (1 - Math.pow(1 - k, 3))) + suffix;
+      if (k < 1) requestAnimationFrame(step);
+    }
+    el.textContent = '0' + suffix;
+    requestAnimationFrame(step);
+  }
+
+  // ── Scroll reveal (progressive enhancement) ──────────────────────────────
+  if ('IntersectionObserver' in window && !reduceMotion) {
+    document.documentElement.classList.add('js-reveal');
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (!e.isIntersecting) return;
+        e.target.classList.add('in');
+        $$('[data-count]', e.target).forEach(countUp);
+        io.unobserve(e.target);
+      });
+    }, {threshold: 0.12});
+    $$('.reveal').forEach(function(el){ io.observe(el); });
+    // Safety net: never leave content hidden (print, full-page capture).
+    setTimeout(function(){ $$('.reveal').forEach(function(el){ el.classList.add('in'); }); }, 4000);
+  }
+})();
 </script>
 </body>
 </html>
