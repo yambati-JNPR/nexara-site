@@ -1,7 +1,7 @@
 <h1 align="center">Nexara</h1>
 
 <p align="center">
-  <b>Automated SSR/128T, SRX &amp; EdgeConnect Diagnostic Analyser</b><br/>
+  <b>Automated SSR/128T, Junos (SRX &amp; EX) &amp; EdgeConnect Diagnostic Analyser</b><br/>
   Turn a support bundle into answers in seconds.
 </p>
 
@@ -12,7 +12,7 @@
 
 ---
 
-Nexara is a browser-based diagnostic tool for Juniper **SSR/128T** routers — with dedicated analysis modes for **SRX** firewalls and **EdgeConnect** SD-WAN appliances. Upload a Tech Support Info (TSI) bundle, RSI output or EdgeConnect sysdump and Nexara automatically analyses the data, runs a full suite of indicators, and surfaces actionable findings across a structured set of views. It runs entirely on your machine — no external dependencies, and bundles never leave your computer.
+Nexara is a browser-based diagnostic tool for Juniper **SSR/128T** routers — with dedicated analysis modes for **Junos** (SRX firewalls and EX switches) and **EdgeConnect** SD-WAN appliances. Upload a Tech Support Info (TSI) bundle, a Junos RSI or Mist support zip, or an EdgeConnect sysdump and Nexara automatically analyses the data, runs a full suite of indicators, and surfaces actionable findings across a structured set of views. It runs entirely on your machine — no external dependencies, and bundles never leave your computer.
 
 This repository hosts the **official website and installer downloads**. The application source lives in a separate private repository.
 
@@ -33,7 +33,7 @@ See the [Releases](https://github.com/yambati-JNPR/nexara-site/releases) page fo
 - **Performance metrics** — CPU, memory, and packet-processing charts over time with per-node filters for HA.
 - **Parsed views** — Sessions, Interfaces, Services, Alarms, Events, FIB, Routing, and BGP rendered as clean tables.
 - **EdgeConnect workspace** — sysdump analysis with an alarms timeline (severity, action and category filters), tunnel/interface/traffic-class telemetry in bps/Kbps/Mbps, key log indicators, hardware sensors and power-supply events, SAR history, and HTML/JSON/CSV exports.
-- **Three pipelines** — SSR/128T (TSI bundle), SRX (RSI output) and EdgeConnect (sysdump `.tgz`), auto-detected and fully separated.
+- **Three pipelines** — SSR/128T (TSI bundle or TAC collector run), Junos (SRX or EX: RSI, `/var/log`, config or Mist support zip) and EdgeConnect (sysdump `.tgz`), auto-detected and fully separated.
 
 ## How it works
 

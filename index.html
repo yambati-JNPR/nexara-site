@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Nexara — Automated SSR/128T, SRX &amp; EdgeConnect Diagnostic Analyser</title>
-<meta name="description" content="Nexara is a desktop diagnostic analyser for Juniper SSR/128T routers, SRX firewalls and HPE Aruba EdgeConnect SD-WAN appliances. Upload a TSI bundle, RSI output or EdgeConnect sysdump and get automated indicators, root-cause analysis and actionable findings — locally, with no account." />
+<title>Nexara — Automated SSR/128T, Junos (SRX &amp; EX) &amp; EdgeConnect Diagnostic Analyser</title>
+<meta name="description" content="Nexara is a desktop diagnostic analyser for Juniper SSR/128T routers, Junos SRX firewalls and EX switches, and HPE Aruba EdgeConnect SD-WAN appliances. Upload a TSI bundle, Junos RSI or Mist support zip, or an EdgeConnect sysdump and get automated indicators, root-cause analysis and actionable findings — locally, with no account." />
 <meta name="theme-color" content="#f5f6fb" id="themeColor" />
-<meta property="og:title" content="Nexara — Automated SSR/128T, SRX &amp; EdgeConnect Diagnostic Analyser" />
+<meta property="og:title" content="Nexara — Automated SSR/128T, Junos (SRX &amp; EX) &amp; EdgeConnect Diagnostic Analyser" />
 <meta property="og:description" content="Upload a support bundle. Get automated indicators, root-cause analysis and actionable findings — all on your own machine." />
 <meta property="og:type" content="website" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -260,7 +260,7 @@
   .pick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
   .pick-card{--pa:var(--accent);display:grid;gap:3px;text-align:left;padding:14px 15px;border-radius:13px;cursor:pointer;
     background:var(--panel);border:1px solid var(--panel-brd);transition:all .2s;min-width:0}
-  .pick-card[data-pick="srx"]{--pa:var(--accent-3)}
+  .pick-card[data-pick="junos"]{--pa:var(--accent-3)}
   .pick-card[data-pick="edgeconnect"]{--pa:var(--accent-2)}
   .pick-card:hover{border-color:color-mix(in srgb,var(--pa) 50%,transparent)}
   .pick-card.active{border-color:var(--pa);background:color-mix(in srgb,var(--pa) 10%,transparent);box-shadow:0 0 0 3px color-mix(in srgb,var(--pa) 18%,transparent)}
@@ -323,7 +323,7 @@
   @media(max-width:980px){.plat{grid-template-columns:1fr}}
   .pcard{--pa:var(--accent);position:relative;cursor:pointer;display:flex;flex-direction:column;background:linear-gradient(180deg,rgba(var(--ink),0.035),rgba(var(--ink),0.01));
     border:1px solid var(--panel-brd);border-radius:var(--radius);padding:26px;transition:border-color .25s,background .25s,transform .25s,box-shadow .25s}
-  .pcard[data-p="srx"]{--pa:var(--accent-3)}
+  .pcard[data-p="junos"]{--pa:var(--accent-3)}
   .pcard[data-p="edgeconnect"]{--pa:var(--accent-2)}
   .pcard:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--pa) 45%,transparent)}
   .pcard[aria-selected="true"]{border-color:var(--pa);background:linear-gradient(180deg,color-mix(in srgb,var(--pa) 11%,transparent),rgba(var(--ink),0.01));
@@ -344,7 +344,7 @@
 
   .spot{--pa:var(--accent);margin-top:34px;padding:26px;border-radius:22px;border:1px solid color-mix(in srgb,var(--pa) 28%,transparent);
     background:linear-gradient(180deg,color-mix(in srgb,var(--pa) 6%,transparent),rgba(var(--ink),0.01))}
-  .spot[data-p="srx"]{--pa:var(--accent-3)}
+  .spot[data-p="junos"]{--pa:var(--accent-3)}
   .spot[data-p="edgeconnect"]{--pa:var(--accent-2)}
   .js .spot[hidden]{display:none}
   .js .spot:not([hidden]){animation:fadeIn .4s ease}
@@ -485,9 +485,9 @@
   <!-- HERO -->
   <section class="hero">
     <div class="wrap">
-      <a class="pill new" href="#whats-new"><span class="tag">New</span> <span id="heroPillText">EdgeConnect workspace, HUB ↔ Spoke correlation &amp; steadier uploads</span></a>
+      <a class="pill new" href="#whats-new"><span class="tag">New</span> <span id="heroPillText">v4.0 · Junos workspace with EX switches, SSR collector runs &amp; PCAP deep analysis</span></a>
       <h1>Turn a support bundle into<br/><span class="grad">answers in seconds</span></h1>
-      <p class="lead">Nexara is a desktop diagnostic analyser for Juniper <b>SSR/128T</b> routers, <b>SRX</b> firewalls and HPE Aruba <b>EdgeConnect</b> SD-WAN appliances. Drop in a TSI bundle, RSI output or EdgeConnect sysdump — it runs a full suite of indicators, correlates the evidence and surfaces the critical findings with corrective actions.</p>
+      <p class="lead">Nexara is a desktop diagnostic analyser for Juniper <b>SSR/128T</b> routers, <b>Junos</b> SRX firewalls and EX switches, and HPE Aruba <b>EdgeConnect</b> SD-WAN appliances. Drop in a TSI bundle, Junos RSI or Mist support zip, or an EdgeConnect sysdump — it runs a full suite of indicators, correlates the evidence and surfaces the critical findings with corrective actions.</p>
       <div class="hero-cta">
         <a class="btn btn-primary btn-lg" href="#download" id="heroDownload">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
@@ -513,8 +513,8 @@
             <button type="button" class="pick-card active" data-pick="ssr" role="radio" aria-checked="true">
               <span class="pn"><i></i>SSR</span><span class="pf">Juniper Session Smart Router / 128T</span><span class="pi">TSI bundle</span>
             </button>
-            <button type="button" class="pick-card" data-pick="srx" role="radio" aria-checked="false">
-              <span class="pn"><i></i>SRX</span><span class="pf">Juniper SRX Series Firewall</span><span class="pi">RSI · /var/log · config</span>
+            <button type="button" class="pick-card" data-pick="junos" role="radio" aria-checked="false">
+              <span class="pn"><i></i>Junos</span><span class="pf">Juniper SRX Firewall · EX Switch</span><span class="pi">RSI · /var/log · config</span>
             </button>
             <button type="button" class="pick-card" data-pick="edgeconnect" role="radio" aria-checked="false">
               <span class="pn"><i></i>EdgeConnect</span><span class="pf">HPE Aruba EdgeConnect SD-WAN</span><span class="pi">ECOS sysdump</span>
@@ -525,8 +525,12 @@
             <button type="button" data-mode="conductor">Conductor</button>
             <button type="button" data-mode="hub-spoke">HUB + Spoke</button>
           </div>
+          <div class="modes" id="junosModes" role="group" aria-label="Junos device type (preview)" hidden>
+            <button type="button" class="active" data-mode="srx">SRX Firewall</button>
+            <button type="button" data-mode="ex">EX Switch</button>
+          </div>
           <div class="drop" id="drop">
-            <div class="slot"><svg><use href="#upl"/></svg><b>Drop a router TSI bundle</b><span>.zip · drop both HA nodes together · up to 5 files</span></div>
+            <div class="slot"><svg><use href="#upl"/></svg><b>Drop a router TSI bundle</b><span>.zip · drop both HA nodes together · up to 20 files</span></div>
           </div>
           <div class="home-foot">
             <span id="homeNote">Bundles stay on this machine.</span>
@@ -542,38 +546,38 @@
     <div class="wrap">
       <div class="sec-head reveal">
         <div class="eyebrow">Three pipelines, one tool</div>
-        <h2>SSR/128T, SRX and EdgeConnect, fully separated</h2>
+        <h2>SSR/128T, Junos and EdgeConnect, fully separated</h2>
         <p>Each product gets its own parser, indicators and workspace — indicators never cross platforms. Pick a platform to explore its workspace.</p>
       </div>
 
       <div class="plat" role="tablist" aria-label="Platforms">
         <div class="pcard reveal" data-p="ssr" role="tab" id="tab-ssr" aria-controls="ssr" aria-selected="true" tabindex="0">
           <h3>SSR / 128T Router <span class="ptag">TSI bundle</span></h3>
-          <p>Single router, conductor or a HUB and Spoke pair — full automated analysis from a Tech Support Info <code>.zip</code>.</p>
+          <p>Single router, conductor, a HUB and Spoke pair or a TAC collector run — full automated analysis from a Tech Support Info <code>.zip</code>.</p>
           <ul>
             <li><svg><use href="#chk"/></svg> System, traffic &amp; network indicators with evidence</li>
             <li><svg><use href="#chk"/></svg> Session debug, PCAP / SVR decoding, coredump RCA</li>
-            <li><svg><use href="#chk"/></svg> HUB ↔ Spoke correlation and Agentic Debug</li>
+            <li><svg><use href="#chk"/></svg> TAC collector runs, HUB ↔ Spoke and Agentic Debug</li>
           </ul>
           <span class="explore">Explore SSR workspace <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         </div>
-        <div class="pcard reveal" data-p="srx" role="tab" id="tab-srx" aria-controls="srx" aria-selected="false" tabindex="-1">
-          <h3>SRX Firewall <span class="ptag">RSI output</span></h3>
-          <p>RSI output, a <code>/var/log</code> archive and/or config. Chassis clusters are parsed from a single RSI.</p>
+        <div class="pcard reveal" data-p="junos" role="tab" id="tab-junos" aria-controls="junos" aria-selected="false" tabindex="-1">
+          <h3>Junos: SRX &amp; EX <span class="ptag">RSI · Mist zip</span> <span class="badge-new">EX new</span></h3>
+          <p>Pick <b>SRX Firewall</b> or <b>EX Switch</b> and drop an RSI, <code>/var/log</code>, config or a Mist support zip. Nexara routes by the RSI model, so a misplaced bundle still lands in the right workspace.</p>
           <ul>
-            <li><svg><use href="#chk"/></svg> Chassis cluster: RG priority, split brain, failover</li>
-            <li><svg><use href="#chk"/></svg> Flow sessions, source-NAT, SPU/PFE, RE health</li>
-            <li><svg><use href="#chk"/></svg> Alarms, IPsec VPN, config audit, log scan, ZTP</li>
+            <li><svg><use href="#chk"/></svg> SRX: chassis cluster, flow &amp; NAT, SPU/PFE, IPsec VPN</li>
+            <li><svg><use href="#chk"/></svg> EX: Virtual Chassis, interfaces, LACP, STP, PoE, optics</li>
+            <li><svg><use href="#chk"/></svg> Syslog event timeline, CPU/memory charts, rebuilt PCAPs</li>
           </ul>
-          <span class="explore">Explore SRX workspace <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span class="explore">Explore Junos workspace <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         </div>
         <div class="pcard reveal" data-p="edgeconnect" role="tab" id="tab-edgeconnect" aria-controls="edgeconnect" aria-selected="false" tabindex="-1">
-          <h3>EdgeConnect SD-WAN <span class="ptag">Sysdump</span> <span class="badge-new">New</span></h3>
+          <h3>EdgeConnect SD-WAN <span class="ptag">Sysdump</span></h3>
           <p>Upload an ECOS sysdump <code>.tgz</code> — Nexara detects EdgeConnect and opens its own workspace.</p>
           <ul>
             <li><svg><use href="#chk"/></svg> Alarm history timeline with severity filters</li>
-            <li><svg><use href="#chk"/></svg> Tunnel, interface &amp; traffic-class telemetry</li>
-            <li><svg><use href="#chk"/></svg> Restarts, error families, hardware, SAR history</li>
+            <li><svg><use href="#chk"/></svg> Tunnel, shaper (QoS), DSCP &amp; top-talker telemetry</li>
+            <li><svg><use href="#chk"/></svg> Per-CPU SAR history, hardware, captures &amp; JIRA</li>
           </ul>
           <span class="explore">Explore EdgeConnect workspace <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         </div>
@@ -582,7 +586,7 @@
       <!-- ── SSR spotlight ─────────────────────────────────────────────── -->
       <div class="spot" data-p="ssr" id="ssr" role="tabpanel" aria-labelledby="tab-ssr">
         <div class="spot-head">
-          <div><h3>SSR / 128T workspace</h3><p>From a single TSI to a HUB and Spoke pair: insights, session-level debugging, crash RCA and an optional AI investigator.</p></div>
+          <div><h3>SSR / 128T workspace</h3><p>From a single TSI to a HUB and Spoke pair or a TAC collector run: insights, session-level debugging, PCAP deep analysis, crash RCA and an optional AI investigator.</p></div>
           <span class="hint"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8M20 12v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1h11" stroke-linecap="round" stroke-linejoin="round"/></svg>Click a view or a feature to preview it</span>
         </div>
         <div class="spot-layout">
@@ -594,6 +598,7 @@
                 <button type="button" class="item active" data-view="ssr-insights"><span class="ic"></span> Critical Insights</button>
                 <button type="button" class="item" data-view="ssr-session"><span class="ic"></span> Session Debug</button>
                 <button type="button" class="item" data-view="ssr-hub"><span class="ic"></span> HUB ↔ Spoke</button>
+                <button type="button" class="item" data-view="ssr-collector"><span class="ic"></span> Collector Runs</button>
                 <button type="button" class="item" data-view="ssr-crash"><span class="ic"></span> Coredump Analysis</button>
                 <button type="button" class="item" data-view="ssr-ai"><span class="ic"></span> Agentic Debug</button>
               </div>
@@ -610,6 +615,19 @@
                   <div class="mfind"><span class="sev">Critical</span> <span>BFD flaps to peer <code>dc-hub</code> on wan1 — classified as path loss</span></div>
                   <div class="mfind w"><span class="sev">Warn</span> <span>NTP offset drift on node1 — 340 ms from reference source</span></div>
                 </div>
+                <div class="view" data-view="ssr-collector">
+                  <div class="mock-h">Collector Runs <span class="chip">2 runs · compare</span></div>
+                  <div class="mchart">
+                    <div class="hd"><b>Packet-processing drops / interval</b><span>since-boot counters → window growth</span></div>
+                    <svg viewBox="0 0 300 86" preserveAspectRatio="none" aria-hidden="true">
+                      <polyline fill="none" stroke="var(--accent)" stroke-width="2" points="0,70 20,68 40,69 60,66 80,64 100,52 120,30 140,22 160,34 180,48 200,58 220,62 240,64 260,66 280,65 300,67"/>
+                      <polyline fill="none" stroke="var(--accent-3)" stroke-width="2" stroke-dasharray="4 3" points="0,72 20,71 40,72 60,70 80,71 100,69 120,70 140,68 160,69 180,70 200,71 220,70 240,69 260,71 280,70 300,71"/>
+                    </svg>
+                    <div class="mlegend"><span><i style="background:var(--accent)"></i>Run A · during issue</span><span><i style="background:var(--accent-3)"></i>Run B · baseline</span></div>
+                  </div>
+                  <div class="mfind w" style="margin-top:10px"><span class="sev">Warn</span> <span>Drop counter grew 14× during run A — PCLI cache sizes steady</span></div>
+                  <div class="mnote">Periodic &amp; long <code>/stats</code> CSVs, runtime-stats snapshots, pcaps and highway logs · CSV export</div>
+                </div>
                 <div class="view" data-view="ssr-session">
                   <div class="mock-h">Session Debug</div>
                   <div class="msearch">Session ID <code>43f473c0</code><em>partial ID · 1 match</em></div>
@@ -619,7 +637,7 @@
                     <div class="ev"><time>10:42:07.114</time><b>Waypoint allocated</b><span>SVR to peer dc-hub</span></div>
                     <div class="ev crit"><time>10:42:11.590</time><b>Session dropped</b><span>No reverse flow — SYN retransmitted ×3</span></div>
                   </div>
-                  <div class="mnote">PCAP · SVR metadata decoded · same session matched on HA peer <b>node1</b> by UUID</div>
+                  <div class="mnote">PCAP · SVR metadata decoded · LAN↔WAN legs paired via NAT · TCP RTT 38 ms, 0 retrans · matched on HA peer <b>node1</b></div>
                 </div>
                 <div class="view" data-view="ssr-hub">
                   <div class="mock-h">HUB ↔ Spoke correlation</div>
@@ -667,24 +685,25 @@
             </div>
           </div>
           <ul class="points">
-            <li><button type="button" class="active" data-view="ssr-insights"><span class="ficon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg></span><div><b>Critical &amp; Deep Insights</b><span>40+ SSR indicators across system, traffic and network — each finding with evidence and a corrective action. HA nodes side by side.</span></div></button></li>
-            <li><button type="button" data-view="ssr-session"><span class="ficon"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>Session Debug &amp; PCAP</b><span>Find a session by ID (even a partial one) or 5-tuple, follow it through the logs, decode SVR metadata and match it on the HA peer.</span></div></button></li>
+            <li><button type="button" class="active" data-view="ssr-insights"><span class="ficon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg></span><div><b>Critical &amp; Deep Insights</b><span>40+ SSR indicators across system, traffic and network (now including App-ID and URL-filtering health), each with evidence and a corrective action. HA nodes side by side.</span></div></button></li>
+            <li><button type="button" data-view="ssr-session"><span class="ficon"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>Session Debug &amp; PCAP deep analysis</b><span>Find a session by ID or 5-tuple and decode SVR metadata. Captures get per-connection TCP health, RTP / Teams loss and jitter, and LAN↔WAN pairing with router transit time.</span></div></button></li>
             <li><button type="button" data-view="ssr-hub"><span class="ficon"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2.5"/><circle cx="19" cy="12" r="2.5"/><path d="M7.5 12h9" stroke-linecap="round" stroke-dasharray="2 2.5"/></svg></span><div><b>HUB ↔ Spoke correlation</b><span>Drop each device's TSI into its own slot: peer paths from both ends, NAT, FIB coverage of LAN prefixes, BGP and matched sessions.</span></div></button></li>
-            <li><button type="button" data-view="ssr-crash"><span class="ficon"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L2.4 18a2 2 0 001.7 3h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>Coredump RCA</b><span>A crash timeline per node: crash loops, repeat signatures, recovery time and pre-crash log context, plus optional JIRA known-bug search.</span></div></button></li>
-            <li><button type="button" data-view="ssr-ai"><span class="ficon"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z" stroke-linejoin="round"/></svg></span><div><b>Agentic Debug (optional)</b><span>Describe the problem; an AI agent searches the bundle with built-in playbooks and cites its evidence. Bring your own Claude, OpenAI or Copilot.</span></div></button></li>
+            <li><button type="button" data-view="ssr-collector"><span class="ficon"><svg viewBox="0 0 24 24"><path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 14l3-4 3 3 5-6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>TAC collector runs &amp; metrics</b><span>Run overview, metric charts, a metrics explorer, runtime counters and multi-run compare. Raw t128-analytics CSV dumps chart too.</span></div></button></li>
+            <li><button type="button" data-view="ssr-crash"><span class="ficon"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L2.4 18a2 2 0 001.7 3h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>Coredump RCA</b><span>A crash timeline per node: crash loops, repeat signatures, recovery time and pre-crash log context, plus a JIRA known-bug lookup page (your own token).</span></div></button></li>
+            <li><button type="button" data-view="ssr-ai"><span class="ficon"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z" stroke-linejoin="round"/></svg></span><div><b>Agentic Debug (optional)</b><span>Describe the problem; an AI agent searches the bundle with built-in playbooks and cites its evidence. Bring your own Claude, OpenAI or GitHub Copilot, with live model discovery and read-only GitHub tools.</span></div></button></li>
           </ul>
         </div>
       </div>
 
-      <!-- ── SRX spotlight ─────────────────────────────────────────────── -->
-      <div class="spot" data-p="srx" id="srx" role="tabpanel" aria-labelledby="tab-srx">
+      <!-- ── Junos (SRX + EX) spotlight ────────────────────────────────── -->
+      <div class="spot" data-p="junos" id="junos" role="tabpanel" aria-labelledby="tab-junos">
         <div class="spot-head">
-          <div><h3>SRX workspace</h3><p>Chassis clusters, flow and NAT health, SPU load and every alarm — parsed from the RSI you already collect.</p></div>
+          <div><h3>Junos workspace — SRX &amp; EX</h3><p>One Junos pipeline, two workspaces: chassis clusters, flow and NAT for SRX firewalls; Virtual Chassis, ports, protocols and rebuilt packet captures for EX switches. All from the RSI and logs you already collect.</p></div>
           <span class="hint"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8M20 12v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1h11" stroke-linecap="round" stroke-linejoin="round"/></svg>Click a view or a feature to preview it</span>
         </div>
         <div class="spot-layout">
-          <div class="mock" aria-label="Illustration of the SRX workspace">
-            <div class="mock-bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="mock-url">127.0.0.1:8443 — Nexara · rsi-fw-cluster.txt</span></div>
+          <div class="mock" aria-label="Illustration of the Junos workspace">
+            <div class="mock-bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="mock-url" id="junosUrl">127.0.0.1:8443 — Nexara · rsi-fw-cluster.txt</span></div>
             <div class="mock-body">
               <div class="mock-side">
                 <div class="grp">SRX</div>
@@ -692,6 +711,11 @@
                 <button type="button" class="item" data-view="srx-cluster"><span class="ic"></span> Chassis Cluster</button>
                 <button type="button" class="item" data-view="srx-flow"><span class="ic"></span> Flow &amp; NAT</button>
                 <button type="button" class="item" data-view="srx-findings"><span class="ic"></span> Findings</button>
+                <div class="grp" style="margin-top:14px">EX Switch</div>
+                <button type="button" class="item" data-view="ex-overview"><span class="ic"></span> Switch Overview</button>
+                <button type="button" class="item" data-view="ex-switching"><span class="ic"></span> Switching</button>
+                <button type="button" class="item" data-view="ex-events"><span class="ic"></span> Event Timeline</button>
+                <button type="button" class="item" data-view="ex-captures"><span class="ic"></span> Packet Captures</button>
               </div>
               <div class="mock-main">
                 <div class="view active" data-view="srx-overview">
@@ -737,14 +761,62 @@
                   <div class="mfind i"><span class="sev">Info</span> <span>Log scan — 1.2k RT_FLOW session-deny messages</span></div>
                   <div class="mfind i"><span class="sev">Info</span> <span>ZTP onboarding completed after 2 retries</span></div>
                 </div>
+                <div class="view" data-view="ex-overview">
+                  <div class="mock-h">EX Overview <span class="chip">Mist support zip</span></div>
+                  <div class="mrow two">
+                    <div class="mcard"><div class="lbl">Model</div><div class="val sm">EX4400-48P</div><div class="sub">Virtual Chassis · 3 members</div></div>
+                    <div class="mcard"><div class="lbl">Junos</div><div class="val sm">23.4R2-S3</div><div class="sub">Mist cloud: connected</div></div>
+                    <div class="mcard"><div class="lbl">PoE budget</div><div class="val sm warn">87%</div><div class="mbar"><i class="warn" style="width:87%"></i></div></div>
+                    <div class="mcard"><div class="lbl">RE CPU</div><div class="val sm">34%</div><div class="sub">peak 71% · counter.log</div></div>
+                  </div>
+                  <div class="msev"><div class="c"><b>1</b>Critical</div><div class="w"><b>4</b>Warning</div><div class="i"><b>6</b>Info</div><div class="o"><b>18</b>OK</div></div>
+                  <div class="mfind"><span class="sev">Critical</span> <span>DDoS-protection violations on ARP — host-bound traffic policed</span></div>
+                </div>
+                <div class="view" data-view="ex-switching">
+                  <div class="mock-h">Switching <span class="chip">interfaces · LAG · STP</span></div>
+                  <table class="mtable">
+                    <thead><tr><th>Port</th><th>State</th><th>Errors</th><th>Note</th></tr></thead>
+                    <tbody>
+                      <tr><td>ae0</td><td>up</td><td class="tag-warn">1/2 members</td><td>below min-links</td></tr>
+                      <tr><td>ge-0/0/12</td><td>up</td><td class="tag-warn">412 CRC</td><td>14 flaps</td></tr>
+                      <tr><td>mge-1/0/3</td><td>up</td><td class="tag-ok">0</td><td>PoE class 4</td></tr>
+                      <tr><td>xe-0/2/1</td><td>up</td><td class="tag-warn">Rx −17 dBm</td><td>optics low</td></tr>
+                    </tbody>
+                  </table>
+                  <div class="mnote">LACP member state, LLDP neighbours, spanning tree, MAC table and queue drops</div>
+                </div>
+                <div class="view" data-view="ex-events">
+                  <div class="mock-h">Event Timeline <span class="chip">messages · 2 /var/log copies merged</span></div>
+                  <div class="mtl">
+                    <div class="ev"><time>Oct 29 02:14:07</time><b>LACP timeout</b><span>ae0 member ge-1/0/47 · LAG below min-links</span></div>
+                    <div class="ev"><time>Oct 29 02:14:09</time><b>BFD down</b><span>neighbor 10.0.0.2 → BGP state Idle</span></div>
+                    <div class="ev"><time>Oct 29 02:14:31</time><b>DDoS violation</b><span>arp aggregate policer exceeded</span></div>
+                    <div class="ev ok"><time>Oct 29 02:15:02</time><b>BGP Established</b><span>10.0.0.2 · 31 s outage</span></div>
+                  </div>
+                </div>
+                <div class="view" data-view="ex-captures">
+                  <div class="mock-h">Packet Captures <span class="chip">rebuilt from PFE logs</span></div>
+                  <table class="mtable">
+                    <thead><tr><th>Capture</th><th>Packets</th><th>Source</th></tr></thead>
+                    <tbody>
+                      <tr><td><code>sw1_cpu-capture_0214.pcap</code></td><td>1,842</td><td>CPU-bound · DDoS burst</td></tr>
+                      <tr><td><code>sw1_dfw-capture_0930.pcap</code></td><td>326</td><td>Mist packet capture</td></tr>
+                    </tbody>
+                  </table>
+                  <div class="mnote">Per-packet index with ingress port, VLAN, CPU queue and PFE reason · open in Wireshark or analyse in place</div>
+                </div>
               </div>
             </div>
           </div>
           <ul class="points">
-            <li><button type="button" class="active" data-view="srx-overview"><span class="ficon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16" stroke-linecap="round"/></svg></span><div><b>Overview from one RSI</b><span>Model, Junos version, cluster roles and RE health for every node — 17 SRX-specific indicators run automatically.</span></div></button></li>
+            <li><button type="button" class="active" data-view="srx-overview"><span class="ficon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16" stroke-linecap="round"/></svg></span><div><b>Overview from one RSI</b><span>Model, Junos version, cluster roles and RE health for every node, with 17 SRX-specific indicators run automatically.</span></div></button></li>
             <li><button type="button" data-view="srx-cluster"><span class="ficon"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="7" height="14" rx="1.5"/><rect x="14" y="5" width="7" height="14" rx="1.5"/><path d="M10 9h4M10 15h4" stroke-linecap="round"/></svg></span><div><b>Chassis cluster</b><span>Redundancy-group priorities, split-brain and failover history, control and fabric link health.</span></div></button></li>
             <li><button type="button" data-view="srx-flow"><span class="ficon"><svg viewBox="0 0 24 24"><path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 14l3-4 3 3 5-6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>Flow, NAT &amp; SPU</b><span>Session utilisation, source-NAT pool exhaustion and SPU / PFE load, with the evidence behind each number.</span></div></button></li>
             <li><button type="button" data-view="srx-findings"><span class="ficon"><svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6l8-4z" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>Alarms, VPN &amp; logs</b><span>Chassis alarms, IPsec VPN state, config audit, log scan, BGP / BFD, core dumps and ZTP onboarding.</span></div></button></li>
+            <li><button type="button" data-view="ex-overview"><span class="ficon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="10" rx="2"/><path d="M6 11h1M9 11h1M12 11h1M15 11h1M18 11h1M6 14h12" stroke-linecap="round"/></svg></span><div><b>EX switch health <span class="badge-new">New</span></b><span>Drop a Mist support zip (or an RSI / <code>/var/log</code>): RE and FPC health, Virtual Chassis, PSUs, PoE budget, optics, licences and DDoS-protection counters.</span></div></button></li>
+            <li><button type="button" data-view="ex-switching"><span class="ficon"><svg viewBox="0 0 24 24"><path d="M4 7h12l-3-3M20 17H8l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>Switching &amp; control plane</b><span>Interface errors and flaps, LACP and LAG min-links, LLDP, spanning tree, MAC moves, BGP / BFD and route tables.</span></div></button></li>
+            <li><button type="button" data-view="ex-events"><span class="ficon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>Event timeline &amp; CPU charts</b><span>Every syslog family classified and de-duplicated across both log copies, with CPU, memory and busiest-process charts from <code>counter.log</code>.</span></div></button></li>
+            <li><button type="button" data-view="ex-captures"><span class="ficon"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>Packet captures from PFE logs</b><span>Nexara rebuilds real <code>.pcap</code> files from the Broadcom PFE hex dumps: CPU-bound bursts tied to DDoS violations, and Mist filter captures.</span></div></button></li>
           </ul>
         </div>
       </div>
@@ -813,7 +885,7 @@
                   </div>
                 </div>
                 <div class="view" data-view="ec-net">
-                  <div class="mock-h">Network Telemetry</div>
+                  <div class="mock-h">Network Telemetry <span class="chip">LAN / WAN Tx · Rx</span></div>
                   <table class="mtable">
                     <thead><tr><th>Interface</th><th>Peak</th><th>Errors</th><th>Drops</th></tr></thead>
                     <tbody>
@@ -823,7 +895,7 @@
                     </tbody>
                   </table>
                   <div class="mchart" style="margin-top:10px">
-                    <div class="hd"><b>wan0 throughput</b><span>1-minute averages</span></div>
+                    <div class="hd"><b>Shaper class <code>real-time</code> · outbound</b><span>throughput · queue wait · drops</span></div>
                     <div class="mbars one" id="ecNetBars" style="height:56px"></div>
                   </div>
                 </div>
@@ -834,8 +906,8 @@
             <li><button type="button" class="active" data-view="ec-overview"><span class="ficon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v16" stroke-linecap="round"/></svg></span><div><b>Overview</b><span>Tunnels, peak WAN throughput, open alarms and hardware at a glance — with any gaps in the evidence called out.</span></div></button></li>
             <li><button type="button" data-view="ec-indicators"><span class="ficon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg></span><div><b>Key indicators</b><span>Datapath delays, peer identity conflicts, management backlogs, process restarts, core artifacts and repeated error families.</span></div></button></li>
             <li><button type="button" data-view="ec-alarms"><span class="ficon"><svg viewBox="0 0 24 24"><path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 16V11M11 16V7M15 16v-4M19 16V9" stroke-linecap="round"/></svg></span><div><b>Alarms timeline</b><span>Years of raises and clears stacked by severity, action or category — filter, group and sort.</span></div></button></li>
-            <li><button type="button" data-view="ec-perf"><span class="ficon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3" stroke-linecap="round"/></svg></span><div><b>CPU, memory &amp; hardware</b><span>Minute telemetry, days of SAR history, top processes, IPMI sensors, power draw and PSU events.</span></div></button></li>
-            <li><button type="button" data-view="ec-net"><span class="ficon"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>Network telemetry</b><span>Tunnels, interfaces and traffic classes in bps / Kbps / Mbps, with NIC errors, tunnel loss and drop totals.</span></div></button></li>
+            <li><button type="button" data-view="ec-perf"><span class="ficon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3" stroke-linecap="round"/></svg></span><div><b>CPU, memory &amp; hardware</b><span>Minute telemetry, days of SAR history with a per-CPU breakdown (usr / sys / iowait / steal), top processes, IPMI sensors and PSU events.</span></div></button></li>
+            <li><button type="button" data-view="ec-net"><span class="ficon"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><b>Network telemetry</b><span>Tunnels (named from the config), interfaces, overlays, DSCP and shaper (QoS) classes with queue wait and drops, plus hourly top-talker apps and conversations.</span></div></button></li>
           </ul>
         </div>
       </div>
@@ -846,9 +918,9 @@
   <section style="padding-top:10px">
     <div class="wrap">
       <div class="stats reveal">
-        <div class="stat"><div class="n" data-count="59">59</div><div class="l">Automated indicators</div></div>
-        <div class="stat"><div class="n" data-count="3">3</div><div class="l">Platforms — SSR/128T, SRX &amp; EdgeConnect</div></div>
-        <div class="stat"><div class="n" data-count="10" data-suffix=" GB">10 GB</div><div class="l">Per file · up to 5 bundles at once</div></div>
+        <div class="stat"><div class="n" data-count="63">63</div><div class="l">Automated indicators</div></div>
+        <div class="stat"><div class="n" data-count="4">4</div><div class="l">Device families: SSR/128T, SRX, EX &amp; EdgeConnect</div></div>
+        <div class="stat"><div class="n" data-count="20">20</div><div class="l">Bundles per upload · up to 10 GB each</div></div>
         <div class="stat"><div class="n" data-count="0">0</div><div class="l">Accounts, sign-ins or cloud uploads</div></div>
       </div>
     </div>
@@ -865,26 +937,38 @@
       <div class="filters" role="group" aria-label="Filter features by platform">
         <button type="button" data-filter="all" aria-pressed="true">All</button>
         <button type="button" data-filter="ssr" aria-pressed="false">SSR / 128T</button>
-        <button type="button" data-filter="srx" aria-pressed="false">SRX</button>
+        <button type="button" data-filter="junos" aria-pressed="false">Junos (SRX / EX)</button>
         <button type="button" data-filter="edgeconnect" aria-pressed="false">EdgeConnect</button>
       </div>
       <div class="features">
-        <div class="fcard reveal" data-plat="ssr srx edgeconnect">
+        <div class="fcard reveal" data-plat="ssr junos edgeconnect">
           <div class="ficon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
           <h3>Automated indicators</h3>
-          <p>59 indicators run in parallel against every bundle — each with detection logic, thresholds, evidence and corrective actions.</p>
-          <div class="fplat"><span>SSR</span><span>SRX</span><span>EdgeConnect</span></div>
+          <p>63 indicators run in parallel against every bundle — each with detection logic, thresholds, evidence and corrective actions.</p>
+          <div class="fplat"><span>SSR</span><span>Junos</span><span>EdgeConnect</span></div>
         </div>
-        <div class="fcard reveal" data-plat="ssr srx edgeconnect">
+        <div class="fcard reveal" data-plat="ssr junos edgeconnect">
           <div class="ficon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg></div>
           <h3>Critical &amp; Deep Insights</h3>
           <p>The issues that matter surface first, then every finding sorted by severity with expandable, searchable evidence.</p>
-          <div class="fplat"><span>SSR</span><span>SRX</span><span>EdgeConnect</span></div>
+          <div class="fplat"><span>SSR</span><span>Junos</span><span>EdgeConnect</span></div>
+        </div>
+        <div class="fcard reveal" data-plat="ssr junos edgeconnect">
+          <div class="ficon"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <h3>PCAP deep analysis</h3>
+          <p>Per-connection TCP health, RTP / Teams loss and jitter, and a ranked verdict from dpkt and tshark. Parallel dissection keeps large captures fast. SSR adds session search and SVR decoding.</p>
+          <div class="fplat"><span>SSR</span><span>Junos</span><span>EdgeConnect</span></div>
+        </div>
+        <div class="fcard reveal" data-plat="junos">
+          <div class="ficon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="10" rx="2"/><path d="M6 11h1M9 11h1M12 11h1M15 11h1M18 11h1M6 14h12" stroke-linecap="round"/></svg></div>
+          <h3>EX switch analysis <span class="badge-new">New</span></h3>
+          <p>Mist support zips, RSI and <code>/var/log</code>: Virtual Chassis, ports, LACP, STP, PoE, optics, a syslog event timeline and packet captures rebuilt from PFE logs.</p>
+          <div class="fplat"><span>EX</span></div>
         </div>
         <div class="fcard reveal" data-plat="ssr">
-          <div class="ficon"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-          <h3>Session debug &amp; PCAP</h3>
-          <p>Session search by full or partial ID, SVR metadata decoding, optional tshark dissection, and cross-node capture correlation.</p>
+          <div class="ficon"><svg viewBox="0 0 24 24"><path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 16V11M11 16V7M15 16v-4M19 16V9" stroke-linecap="round"/></svg></div>
+          <h3>TAC collector runs <span class="badge-new">New</span></h3>
+          <p>Periodic and long <code>/stats</code> CSVs, runtime counters, captures and highway logs as charts, an explorer and a multi-run compare with CSV export.</p>
           <div class="fplat"><span>SSR</span></div>
         </div>
         <div class="fcard reveal" data-plat="ssr">
@@ -893,35 +977,35 @@
           <p>Two devices, one view: peer-path evidence from both ends, NAT detection, FIB coverage, BGP and sessions matched across captures.</p>
           <div class="fplat"><span>SSR</span></div>
         </div>
-        <div class="fcard reveal" data-plat="ssr">
+        <div class="fcard reveal" data-plat="ssr edgeconnect">
           <div class="ficon"><svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9L2.4 18a2 2 0 001.7 3h15.8a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
           <h3>Crash &amp; coredump RCA</h3>
-          <p>Crash timelines, loops and signatures with pre-crash context; optional JIRA known-bug lookup with your own token.</p>
-          <div class="fplat"><span>SSR</span></div>
+          <p>Crash timelines, loops and signatures with pre-crash context. JIRA known-bug lookup pages for SSR and EdgeConnect, using your own token.</p>
+          <div class="fplat"><span>SSR</span><span>EdgeConnect</span></div>
         </div>
-        <div class="fcard reveal" data-plat="ssr srx edgeconnect">
+        <div class="fcard reveal" data-plat="ssr junos edgeconnect">
           <div class="ficon"><svg viewBox="0 0 24 24"><path d="M3 3v18h18" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 14l3-4 3 3 5-6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
           <h3>Performance metrics</h3>
           <p>CPU, memory, packet processing and top-process charts over time — zoomable, with per-node filters for HA.</p>
-          <div class="fplat"><span>SSR</span><span>SRX</span><span>EdgeConnect</span></div>
+          <div class="fplat"><span>SSR</span><span>Junos</span><span>EdgeConnect</span></div>
         </div>
         <div class="fcard reveal" data-plat="ssr">
           <div class="ficon"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9L12 3z" stroke-linejoin="round"/></svg></div>
           <h3>Agentic Debug</h3>
-          <p>Optional AI investigation with built-in playbooks — Claude, OpenAI or GitHub Copilot, using your own key.</p>
+          <p>Optional AI investigation with built-in playbooks — Claude, OpenAI or GitHub Copilot sign-in, with live model lists and read-only GitHub tools.</p>
           <div class="fplat"><span>SSR</span></div>
         </div>
-        <div class="fcard reveal" data-plat="ssr srx edgeconnect">
+        <div class="fcard reveal" data-plat="ssr junos edgeconnect">
           <div class="ficon"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v13a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z" stroke-linejoin="round"/><path d="M14 2v6h6M8 13h8M8 17h5" stroke-linecap="round"/></svg></div>
           <h3>Shareable RCA reports</h3>
-          <p>A self-contained, printable HTML report to attach to a case, plus JSON and CSV exports.</p>
-          <div class="fplat"><span>SSR</span><span>SRX</span><span>EdgeConnect</span></div>
+          <p>A self-contained, unbranded HTML report to attach to a case, interactive page exports that keep your selections, plus JSON and CSV.</p>
+          <div class="fplat"><span>SSR</span><span>Junos</span><span>EdgeConnect</span></div>
         </div>
-        <div class="fcard reveal" data-plat="ssr srx edgeconnect">
+        <div class="fcard reveal" data-plat="ssr junos edgeconnect">
           <div class="ficon"><svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6l8-4z" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
           <h3>Local &amp; private</h3>
           <p>Runs on 127.0.0.1 with no login and works air-gapped. Bundles never leave your computer — AI features are opt-in.</p>
-          <div class="fplat"><span>SSR</span><span>SRX</span><span>EdgeConnect</span></div>
+          <div class="fplat"><span>SSR</span><span>Junos</span><span>EdgeConnect</span></div>
         </div>
       </div>
     </div>
@@ -943,7 +1027,7 @@
         <div class="step reveal">
           <div class="num">2</div>
           <h3>Pick a product, drop the bundle</h3>
-          <p>Choose SSR, SRX or EdgeConnect and drop the bundle. For SSR, pick single router, conductor or HUB + Spoke; drop both HA nodes together.</p>
+          <p>Choose SSR, Junos or EdgeConnect and drop up to 20 files. For SSR pick single router, conductor or HUB + Spoke; for Junos pick SRX Firewall or EX Switch.</p>
         </div>
         <div class="step reveal">
           <div class="num">3</div>
@@ -961,7 +1045,21 @@
         <div class="eyebrow">Release notes</div>
         <h2 class="col-h">What's new</h2>
         <div class="acc" id="releases">
-          <details open data-version="v3.9.0">
+          <details open data-version="v4.0.0">
+            <summary><span class="ver">v4.0.0</span> <span class="ver-date">Oct 2026</span> <span class="latest" hidden>Latest</span></summary>
+            <div class="body"><ul>
+              <li>SRX is now <b>Junos</b>: one product with SRX Firewall and EX Switch, routed by the RSI model</li>
+              <li>New: EX switch workspace for Mist support zips, RSI and <code>/var/log</code>, with packet captures rebuilt from PFE logs</li>
+              <li>SSR TAC collector runs: run overview, metric charts, metrics explorer, runtime counters and multi-run compare</li>
+              <li>PCAP deep analysis: TCP health per connection, RTP / Teams streams, LAN↔WAN pairing, parallel tshark (≈2.5× faster)</li>
+              <li>App-ID diagnostics, including App-ID detail-manifest TSIs and URL-filtering health</li>
+              <li>EdgeConnect: shaper (QoS), DSCP, overlay and top-talker telemetry, per-CPU SAR, JIRA lookup</li>
+              <li>GitHub Copilot: live model discovery and read-only GitHub tools for Agentic Debug</li>
+              <li>Upload up to 20 bundles at a time; raw t128-analytics CSV dumps chart directly</li>
+              <li>Unbranded reports and interactive page exports that keep your selections</li>
+            </ul></div>
+          </details>
+          <details data-version="v3.9.0">
             <summary><span class="ver">v3.9.0</span> <span class="ver-date">Oct 2026</span> <span class="latest" hidden>Latest</span></summary>
             <div class="body"><ul>
               <li>Refreshed EdgeConnect workspace: sortable alarm summary and events, SAR history, interface drops, IPMI hardware and power evidence</li>
@@ -1016,9 +1114,11 @@
             <summary>What can I upload?</summary>
             <div class="body"><ul>
               <li><b>SSR / 128T:</b> TSI <code>.zip</code> — single router, conductor, both HA nodes, or a HUB and Spoke pair</li>
-              <li><b>SRX:</b> RSI output, a <code>/var/log</code> archive and/or config</li>
+              <li><b>SSR collector:</b> a TAC collector run, or raw t128-analytics CSV dumps</li>
+              <li><b>Junos — SRX:</b> RSI output, a <code>/var/log</code> archive and/or config</li>
+              <li><b>Junos — EX:</b> a Mist support zip (<code>juniper_&lt;mac&gt;_&lt;date&gt;.zip</code>), or its RSI and <code>/var/log</code> on their own; several switches at once</li>
               <li><b>EdgeConnect:</b> ECOS sysdump <code>.tgz</code></li>
-            </ul><p style="margin-top:8px">Up to 10 GB per file and 5 bundles at a time. Nested archives are unpacked automatically.</p></div>
+            </ul><p style="margin-top:8px">Up to 10 GB per file and 20 bundles at a time. Nested archives are unpacked automatically.</p></div>
           </details>
           <details>
             <summary>Is AI required?</summary>
@@ -1072,14 +1172,14 @@
       </a>
       <nav class="foot-links" aria-label="Footer">
         <a href="#ssr">SSR / 128T</a>
-        <a href="#srx">SRX</a>
+        <a href="#junos">Junos (SRX / EX)</a>
         <a href="#edgeconnect">EdgeConnect</a>
         <a href="#whats-new">What's new</a>
         <a href="#download">Download</a>
         <a href="https://github.com/yambati-JNPR/nexara-site/releases" target="_blank" rel="noopener">Releases</a>
       </nav>
     </div>
-    <p class="foot-copy">Automated SSR/128T, SRX &amp; EdgeConnect Diagnostic Analyser · Built by <a href="https://www.linkedin.com/in/bhaskar-reddy-gaddam-a4118a53/" target="_blank" rel="noopener">Bhaskar Gaddam</a> &amp; <a href="https://www.linkedin.com/in/yeshwanth-ambati/" target="_blank" rel="noopener">Yeshwanth Ambati</a> · &copy; <span id="yr"></span> Nexara</p>
+    <p class="foot-copy">Automated SSR/128T, Junos (SRX &amp; EX) &amp; EdgeConnect Diagnostic Analyser · Built by <a href="https://www.linkedin.com/in/bhaskar-reddy-gaddam-a4118a53/" target="_blank" rel="noopener">Bhaskar Gaddam</a> &amp; <a href="https://www.linkedin.com/in/yeshwanth-ambati/" target="_blank" rel="noopener">Yeshwanth Ambati</a> · &copy; <span id="yr"></span> Nexara</p>
   </div>
 </footer>
 
@@ -1139,22 +1239,30 @@
     });
   });
 
-  // #ssr / #srx / #edgeconnect deep-link to a product (also from the nav and footer).
+  // #ssr / #junos / #edgeconnect deep-link to a product (also from the nav and footer).
+  // Older #srx links and #ex land on the Junos tab with the matching view.
+  var ALIAS = {srx: ['junos', 'srx-overview'], ex: ['junos', 'ex-overview']};
+  function showView(p, view){
+    var btn = view && $('#' + p + ' .mock-side button[data-view="' + view + '"]');
+    if (btn) btn.click();
+  }
   function fromHash(scroll){
-    var p = location.hash.slice(1);
-    if (PRODUCTS.indexOf(p) >= 0) selectProduct(p, {scroll: scroll, updateHash: false});
+    var p = location.hash.slice(1), view = null;
+    if (ALIAS[p]) { view = ALIAS[p][1]; p = ALIAS[p][0]; }
+    if (PRODUCTS.indexOf(p) >= 0) { selectProduct(p, {scroll: scroll, updateHash: false}); showView(p, view); }
   }
   window.addEventListener('hashchange', function(){ fromHash(true); });
   document.addEventListener('click', function(e){
     var a = e.target.closest('a[href^="#"]');
     if (!a) return;
-    var p = a.getAttribute('href').slice(1);
-    if (PRODUCTS.indexOf(p) >= 0) { e.preventDefault(); selectProduct(p, {scroll: true}); }
+    var p = a.getAttribute('href').slice(1), view = null;
+    if (ALIAS[p]) { view = ALIAS[p][1]; p = ALIAS[p][0]; }
+    if (PRODUCTS.indexOf(p) >= 0) { e.preventDefault(); selectProduct(p, {scroll: true}); showView(p, view); }
   });
   // Panels are all visible without JS; with JS show one at a time.
   selectProduct(PRODUCTS[0], {updateHash: false});
-  fromHash(false);
-  if (PRODUCTS.indexOf(location.hash.slice(1)) >= 0) {
+  setTimeout(function(){ fromHash(false); }, 0); // after the view handlers below are attached
+  if (PRODUCTS.indexOf(location.hash.slice(1)) >= 0 || ALIAS[location.hash.slice(1)]) {
     // Land on the tabs, not on the panel below them.
     setTimeout(function(){ $('#platforms .plat').scrollIntoView({block: 'start'}); }, 0);
   }
@@ -1171,6 +1279,8 @@
           if (b.closest('.mock-side')) b.setAttribute('aria-pressed', on);
         });
         $$('.view', spot).forEach(function(view){ view.classList.toggle('active', view.dataset.view === v); });
+        var url = $('#junosUrl', spot);
+        if (url) url.textContent = '127.0.0.1:8443 — Nexara · ' + (v.indexOf('ex-') === 0 ? 'juniper_d0dd49a1b2c3_2026-10-29.zip' : 'rsi-fw-cluster.txt');
       });
     });
     $$('.mock-side button', spot).forEach(function(b){ b.setAttribute('aria-pressed', b.classList.contains('active')); });
@@ -1188,18 +1298,20 @@
 
   // ── Hero: interactive copy of the app's home screen ──────────────────────
   (function(){
-    var home = $('#home'), modes = $('#ssrModes'), drop = $('#drop');
-    var product = 'ssr', mode = 'router';
-    var ACCENT = {ssr: 'var(--accent)', srx: 'var(--accent-3)', edgeconnect: 'var(--accent-2)'};
-    var NAME = {ssr: 'an SSR bundle', srx: 'an SRX RSI', edgeconnect: 'an EdgeConnect sysdump'};
+    var home = $('#home'), modes = $('#ssrModes'), jmodes = $('#junosModes'), drop = $('#drop');
+    var product = 'ssr', mode = 'router', jmode = 'srx';
+    var ACCENT = {ssr: 'var(--accent)', junos: 'var(--accent-3)', edgeconnect: 'var(--accent-2)'};
+    var NAME = {ssr: 'an SSR bundle', srx: 'an SRX RSI', ex: 'an EX support zip', edgeconnect: 'an EdgeConnect sysdump'};
     function slot(title, sub){
       return '<div class="slot"><svg><use href="#upl"/></svg><b>' + title + '</b><span>' + sub + '</span></div>';
     }
     function render(){
       home.style.setProperty('--pa', ACCENT[product]);
       modes.hidden = product !== 'ssr';
+      jmodes.hidden = product !== 'junos';
       var slots;
-      if (product === 'srx') slots = [slot('Drop RSI output, /var/log or config', 'Chassis clusters are parsed from a single RSI')];
+      if (product === 'junos' && jmode === 'ex') slots = [slot('Drop a Mist support zip, RSI or /var/log', 'juniper_&lt;mac&gt;_&lt;date&gt;.zip · several switches at once')];
+      else if (product === 'junos') slots = [slot('Drop RSI output, /var/log or config', 'Chassis clusters are parsed from a single RSI · EX RSIs are routed automatically')];
       else if (product === 'edgeconnect') slots = [slot('Drop an EdgeConnect sysdump', '.tgz · ECOS is detected automatically')];
       else if (mode === 'conductor') slots = [slot('Drop a conductor TSI bundle', 'Assets, connectivity and managed-router health')];
       else if (mode === 'hub-spoke') slots = [slot('HUB TSI', 'the data-center / head-end router'), slot('Spoke TSI', 'the branch router')];
@@ -1212,12 +1324,20 @@
         c.setAttribute('aria-checked', on);
       });
       $$('button', modes).forEach(function(b){ b.classList.toggle('active', b.dataset.mode === mode); });
-      var link = $('#homeLink');
-      link.href = '#' + product;
-      link.textContent = 'See what Nexara finds in ' + NAME[product] + ' →';
+      $$('button', jmodes).forEach(function(b){ b.classList.toggle('active', b.dataset.mode === jmode); });
+      var link = $('#homeLink'), key = product === 'junos' ? jmode : product;
+      link.href = '#' + key;
+      link.textContent = 'See what Nexara finds in ' + NAME[key] + ' →';
     }
     $$('.pick-card', home).forEach(function(c){
       c.addEventListener('click', function(){ product = c.dataset.pick; render(); selectProduct(product, {updateHash: false}); });
+    });
+    $$('button', jmodes).forEach(function(b){
+      b.addEventListener('click', function(){
+        jmode = b.dataset.mode;
+        render();
+        showView('junos', jmode + '-overview');
+      });
     });
     $$('button', modes).forEach(function(b){
       b.addEventListener('click', function(){
